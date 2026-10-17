@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useNodesState, useEdgesState, ReactFlow, Background, Controls, Panel } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
@@ -5,50 +6,197 @@ import PizzaPlaceNode from './pizzaplacenode';
 import HouseNode from './housenode';
 import JunctionNode from './junctionnode'; 
 
-// 1. Map your custom node types
 const nodeTypes = {
   pizza: PizzaPlaceNode,
   house: HouseNode,
   junction: JunctionNode, 
 };
 
-// 2. Setup initial nodes with 'distance: null' so the UI knows to hide the distance label
+// 1. Expanded Map: We've added a second junction and a third house
 const initialNodes = [
-  { id: 'start', type: 'pizza', position: { x: 200, y: -300 }, data: { label: "Luigi's Pizza", distance: null } },
-  { id: 'j1', type: 'junction', position: { x: 300, y: 165 }, data: { label: 'Main St Split', distance: null } },
-  { id: 'h1', type: 'house', position: { x: 500, y: 50 }, data: { label: 'Customer A', distance: null } },
-  { id: 'h2', type: 'house', position: { x: 500, y: 250 }, data: { label: 'Customer B', distance: null } }
+  // THE START
+  { id: 'start', type: 'pizza', position: { x: 400, y: 0 }, data: { label: "Luigi's Pizza", distance: null } },
+  
+  // FIRST JUNCTION
+  { id: 'j1', type: 'junction', position: { x: 400, y: 150 }, data: { label: 'Junction 1', distance: null } },
+  
+  // RIGHT BRANCH (From J1)
+  { id: 'j2', type: 'junction', position: { x: 600, y: 150 }, data: { label: 'Junction 2', distance: null } },
+  { id: 'h1', type: 'house', position: { x: 600, y: 0 }, data: { label: 'House 1', distance: null } },    // Above j2
+  { id: 'h2', type: 'house', position: { x: 800, y: 100 }, data: { label: 'House 2', distance: null } },  // Below j2
+  
+  // DOWN BRANCH (From J1)
+  { id: 'j3', type: 'junction', position: { x: 400, y: 400 }, data: { label: 'Junction 3', distance: null } },
+  { id: 'h7', type: 'house', position: { x: 400, y: 550 }, data: { label: 'House 7', distance: null } },  // Below j3
+  
+  // LEFT BRANCH (From J3)
+  { id: 'j4', type: 'junction', position: { x: 200, y: 400 }, data: { label: 'Junction 4', distance: null } },
+  { id: 'h3', type: 'house', position: { x: 200, y: 250 }, data: { label: 'House 3', distance: null } },  // Above j4
+  { id: 'h4', type: 'house', position: { x: 200, y: 550 }, data: { label: 'House 4', distance: null } },  // Below j4
+  
+  // RIGHT BRANCH (From J3)
+  { id: 'j5', type: 'junction', position: { x: 600, y: 400 }, data: { label: 'Junction 5', distance: null } },
+  { id: 'h5', type: 'house', position: { x: 600, y: 300 }, data: { label: 'House 5', distance: null } },  // Above j5
+  { id: 'h6', type: 'house', position: { x: 600, y: 550 }, data: { label: 'House 6', distance: null } },  // Below j5
+  
+  // FAR RIGHT BRANCH (From J5)
+  { id: 'j6', type: 'junction', position: { x: 900, y: 400 }, data: { label: 'Junction 6', distance: null } },
+  { id: 'h8', type: 'house', position: { x: 900, y: 250 }, data: { label: 'House 8', distance: null } },  // Above j6
+  { id: 'h9', type: 'house', position: { x: 900, y: 550 }, data: { label: 'House 9', distance: null } },  // Below j6
+  { id: 'h10', type: 'house', position: { x: 750, y: 450 }, data: { label: 'House 10', distance: null } } // Left of j6
 ];
 
-// 3. Setup initial edges with hidden 'weight' data instead of visible labels
 const initialEdges = [
-  { id: 'road1', source: 'start', target: 'j1', data: { weight: 2 } },
-  { id: 'road2', source: 'j1', target: 'h1', data: { weight: 3 } },
-  { id: 'road3', source: 'j1', target: 'h2', data: { weight: 4 } }
+  // From Pizza Place
+  { id: 'e-start-j1', source: 'start', sourceHandle: 'bottom', target: 'j1', targetHandle: 'top', type: 'step', data: { weight: 2 } },
+  
+  // From Junction 1
+  { id: 'e-j1-j2', source: 'j1', sourceHandle: 'right', target: 'j2', targetHandle: 'left', type: 'step', data: { weight: 4 } },
+  { id: 'e-j1-j3', source: 'j1', sourceHandle: 'bottom', target: 'j3', targetHandle: 'top', type: 'step', data: { weight: 5 } },
+  
+  // From Junction 2
+  { id: 'e-j2-h1', source: 'j2', sourceHandle: 'top', target: 'h1', targetHandle: 'bottom', type: 'step', data: { weight: 1 } },
+  { id: 'e-j2-h2', source: 'j2', sourceHandle: 'bottom', target: 'h2', targetHandle: 'top', type: 'step', data: { weight: 3 } },
+  
+  // From Junction 3
+  { id: 'e-j3-j4', source: 'j3', sourceHandle: 'left', target: 'j4', targetHandle: 'right', type: 'step', data: { weight: 6 } },
+  { id: 'e-j3-j5', source: 'j3', sourceHandle: 'right', target: 'j5', targetHandle: 'left', type: 'step', data: { weight: 2 } },
+  { id: 'e-j3-h7', source: 'j3', sourceHandle: 'bottom', target: 'h7', targetHandle: 'top', type: 'step', data: { weight: 4 } },
+  
+  // From Junction 4
+  { id: 'e-j4-h3', source: 'j4', sourceHandle: 'top', target: 'h3', targetHandle: 'bottom', type: 'step', data: { weight: 2 } },
+  { id: 'e-j4-h4', source: 'j4', sourceHandle: 'bottom', target: 'h4', targetHandle: 'top', type: 'step', data: { weight: 3 } },
+  
+  // From Junction 5
+  { id: 'e-j5-h5', source: 'j5', sourceHandle: 'top', target: 'h5', targetHandle: 'bottom', type: 'step', data: { weight: 1 } },
+  { id: 'e-j5-h6', source: 'j5', sourceHandle: 'bottom', target: 'h6', targetHandle: 'top', type: 'step', data: { weight: 5 } },
+  { id: 'e-j5-j6', source: 'j5', sourceHandle: 'right', target: 'j6', targetHandle: 'left', type: 'step', data: { weight: 7 } },
+  
+  // From Junction 6
+  { id: 'e-j6-h8', source: 'j6', sourceHandle: 'top', target: 'h8', targetHandle: 'bottom', type: 'step', data: { weight: 2 } },
+  { id: 'e-j6-h9', source: 'j6', sourceHandle: 'bottom', target: 'h9', targetHandle: 'top', type: 'step', data: { weight: 4 } },
+  // For House 10 (Left of J6), we use the left handle of J6 and the right handle of H10
+  { id: 'e-j6-h10', source: 'j6', sourceHandle: 'left', target: 'h10', targetHandle: 'right', type: 'step', data: { weight: 3 } }
 ];
 
 export default function BoardScene() {
-  // 4. State hooks (now including setNodes and setEdges)
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
-  const runAlgorithmStep = () => {
-    // Reveal edge weights by grabbing the hidden data.weight and pushing it to the visible label
-    setEdges((currentEdges) => 
-      currentEdges.map((edge) => {
-        return { ...edge, label: `${edge.data.weight} mins` };
-      })
-    );
+  // 3. Algorithm State: This tracks Dijkstra's "brain" between button clicks
+  const [algoState, setAlgoState] = useState({
+    started: false,
+    finished: false,
+    distances: {},
+    unvisited: [],
+    visited: [],
+    currentVisitingName: ""
+  });
 
-    // Set the starting node distance to 0, and all others to Infinity
-    setNodes((currentNodes) => 
-      currentNodes.map((node) => {
-        if (node.id === 'start') {
-          return { ...node, data: { ...node.data, distance: 0 } };
+  const runNextStep = () => {
+    // STEP A: Initialization (Click 1)
+    if (!algoState.started) {
+      const initDistances = {};
+      initialNodes.forEach(n => {
+        initDistances[n.id] = n.id === 'start' ? 0 : Infinity;
+      });
+
+      setAlgoState({
+        started: true,
+        finished: false,
+        distances: initDistances,
+        unvisited: initialNodes.map(n => n.id),
+        visited: [],
+        currentVisitingName: "Initializing..."
+      });
+
+      // Show edge weights and initial node distances
+      setEdges(eds => eds.map(e => ({ ...e, label: `${e.data.weight} mins` })));
+      setNodes(nds => nds.map(n => ({
+        ...n,
+        data: { ...n.data, distance: n.id === 'start' ? 0 : '∞' }
+      })));
+      return;
+    }
+
+    // STEP B: Run Algorithm Iteration
+    let { distances, unvisited, visited } = algoState;
+    
+    // Find the unvisited node with the smallest distance
+    let nextNodeId = null;
+    let minDistance = Infinity;
+    
+    unvisited.forEach(id => {
+      if (distances[id] < minDistance) {
+        minDistance = distances[id];
+        nextNodeId = id;
+      }
+    });
+
+    // If no reachable nodes are left, the algorithm is done
+    if (!nextNodeId || minDistance === Infinity) {
+      setAlgoState(prev => ({ ...prev, finished: true, currentVisitingName: "Finished!" }));
+      
+      // Clear the highlighted border when finished
+      setNodes(nds => nds.map(n => ({ ...n, style: { ...n.style, boxShadow: 'none', border: '2px solid #555' } })));
+      return;
+    }
+
+    // Evaluate all outgoing roads from the node we are currently visiting
+    const newDistances = { ...distances };
+    const connectedEdges = edges.filter(e => e.source === nextNodeId);
+    
+    connectedEdges.forEach(edge => {
+      const neighborId = edge.target;
+      if (unvisited.includes(neighborId)) {
+        // Calculate new distance: current node's distance + road weight
+        const newDist = newDistances[nextNodeId] + edge.data.weight;
+        
+        // If it's faster than the previously known route, update it
+        if (newDist < newDistances[neighborId]) {
+          newDistances[neighborId] = newDist;
         }
-        return { ...node, data: { ...node.data, distance: '∞' } };
-      })
-    );
+      }
+    });
+
+    // Mark the current node as visited
+    const newUnvisited = unvisited.filter(id => id !== nextNodeId);
+    const newVisited = [...visited, nextNodeId];
+
+    // Get the name of the node for our UI Banner
+    const visitingNodeObj = nodes.find(n => n.id === nextNodeId);
+
+    // Save the new mathematical state
+    setAlgoState({
+      started: true,
+      finished: newUnvisited.length === 0,
+      distances: newDistances,
+      unvisited: newUnvisited,
+      visited: newVisited,
+      currentVisitingName: visitingNodeObj.data.label
+    });
+
+    // Update the visual map
+    setNodes(nds => nds.map(n => {
+      const isCurrent = n.id === nextNodeId;
+      const isVisited = newVisited.includes(n.id);
+      
+      let displayDist = newDistances[n.id];
+      if (displayDist === Infinity) displayDist = '∞';
+
+      return {
+        ...n,
+        data: { ...n.data, distance: displayDist },
+        // Add a glowing pink border to the node currently being processed
+        style: {
+          ...n.style,
+          border: isCurrent ? '3px solid #ff0072' : isVisited ? '2px solid #555' : '2px solid #ddd',
+          boxShadow: isCurrent ? '0 0 15px #ff0072' : 'none',
+          borderRadius: '5px',
+          transition: 'all 0.3s ease'
+        }
+      };
+    }));
   };
 
   return (
@@ -63,14 +211,38 @@ export default function BoardScene() {
       >
         <Background />
         <Controls />
+
+        {/* 4. Top Banner: Shows the Currently Visiting Node */}
+        {algoState.started && (
+          <Panel position="top-center">
+            <div style={{ 
+              background: algoState.finished ? '#228B22' : '#333', 
+              color: 'white', 
+              padding: '10px 20px', 
+              borderRadius: '8px', 
+              fontSize: '18px', 
+              fontWeight: 'bold',
+              boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+            }}>
+              {algoState.finished ? "Algorithm Complete!" : `Currently Visiting: ${algoState.currentVisitingName}`}
+            </div>
+          </Panel>
+        )}
         
-        {/* 5. Add the UI Panel to trigger the algorithm */}
+        {/* 5. Next Step Button */}
         <Panel position="top-left">
           <button 
-            onClick={runAlgorithmStep}
-            style={{ padding: '10px 20px', fontSize: '16px', cursor: 'pointer', fontWeight: 'bold' }}
+            onClick={runNextStep}
+            disabled={algoState.finished}
+            style={{ 
+              padding: '10px 20px', 
+              fontSize: '16px', 
+              cursor: algoState.finished ? 'not-allowed' : 'pointer', 
+              fontWeight: 'bold',
+              opacity: algoState.finished ? 0.5 : 1
+            }}
           >
-            Start Dijkstra
+            {algoState.started ? 'Next Step' : 'Start Dijkstra'}
           </button>
         </Panel>
       </ReactFlow>

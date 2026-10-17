@@ -11,9 +11,9 @@ export default function JunctionNode({ data }) {
       position: 'relative'
     }}>
       {/* Handles on all sides. opacity: 0 hides the dot but keeps it functional */}
-      <Handle type="target" position={Position.Left} id="left" style={{ opacity: 0 }} />
+      <Handle type="target" position={Position.Top} id="top" style={{ opacity: 0 }} />
       <Handle type="source" position={Position.Right} id="right" style={{ opacity: 0 }} />
-      <Handle type="source" position={Position.Top} id="top" style={{ opacity: 0 }} />
+      <Handle type="source" position={Position.Left} id="left" style={{ opacity: 0 }} />
       <Handle type="source" position={Position.Bottom} id="bottom" style={{ opacity: 0 }} />
       
       <div style={{ position: 'absolute', top: '25px', left: '-10px', fontSize: '10px', whiteSpace: 'nowrap' }}>

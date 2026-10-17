@@ -13,8 +13,7 @@ export default function PizzaNode({ data }) {
     }}>
       <div style={{ fontSize: '24px' }}>PIZZAPLACE</div>
       <div>{data.label || 'Pizza Shop'}</div>
-      <Handle type="source" position={Position.Right} />
-      <Handle type="target" position={Position.Left} />
+      <Handle type="source" position={Position.Bottom} />
     </div>
   );
 }

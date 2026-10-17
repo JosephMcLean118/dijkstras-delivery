@@ -10,7 +10,7 @@ function Header(){
                     <h1 className="fs-4 m-0 fw-bold" style={{ fontFamily: "Inter, Arial, sans-serif" }}>Dijkstra's Delivery Service</h1>
                 </Link>
                 <p className="m-0 small opacity-50">By Morgan Stanley</p>
-                <Link to="/practice" className="ms-auto text-decoration-none text-black">Practice</Link>
+                <Link to="/practice" className="ms-auto text-decoration-none text-black">Tutorial</Link>
                 <Link to="/play" className="other-hover-grow py-2 px-4 rounded-pill text-bg-primary text-decoration-none">Play</Link>
             </div>
             </div>

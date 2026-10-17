@@ -15,35 +15,35 @@ const nodeTypes = {
 // 1. Expanded Map: We've added a second junction and a third house
 const initialNodes = [
   // THE START
-  { id: 'start', type: 'pizza', position: { x: 400, y: 0 }, data: { label: "Luigi's Pizza", distance: null } },
+  { id: 'start', type: 'pizza', position: { x: 357.5, y: -100 }, data: { label: "Luigi's Pizza", distance: null } },
   
   // FIRST JUNCTION
   { id: 'j1', type: 'junction', position: { x: 400, y: 150 }, data: { label: 'Junction 1', distance: null } },
   
   // RIGHT BRANCH (From J1)
   { id: 'j2', type: 'junction', position: { x: 600, y: 150 }, data: { label: 'Junction 2', distance: null } },
-  { id: 'h1', type: 'house', position: { x: 600, y: 0 }, data: { label: 'House 1', distance: null } },    // Above j2
-  { id: 'h2', type: 'house', position: { x: 800, y: 100 }, data: { label: 'House 2', distance: null } },  // Below j2
+  { id: 'h1', type: 'house', position: { x: 535, y: 50 }, data: { label: 'House 1', distance: null } },    // Above j2
+  { id: 'h2', type: 'house', position: { x: 700, y: 137 }, data: { label: 'House 2', distance: null } },  // Below j2
   
   // DOWN BRANCH (From J1)
   { id: 'j3', type: 'junction', position: { x: 400, y: 400 }, data: { label: 'Junction 3', distance: null } },
-  { id: 'h7', type: 'house', position: { x: 400, y: 550 }, data: { label: 'House 7', distance: null } },  // Below j3
+  { id: 'h7', type: 'house', position: { x: 335, y: 550 }, data: { label: 'House 7', distance: null } },  // Below j3
   
   // LEFT BRANCH (From J3)
   { id: 'j4', type: 'junction', position: { x: 200, y: 400 }, data: { label: 'Junction 4', distance: null } },
-  { id: 'h3', type: 'house', position: { x: 200, y: 250 }, data: { label: 'House 3', distance: null } },  // Above j4
-  { id: 'h4', type: 'house', position: { x: 200, y: 550 }, data: { label: 'House 4', distance: null } },  // Below j4
+  { id: 'h3', type: 'house', position: { x: 135, y: 250 }, data: { label: 'House 3', distance: null } },  // Above j4
+  { id: 'h4', type: 'house', position: { x: 135, y: 550 }, data: { label: 'House 4', distance: null } },  // Below j4
   
   // RIGHT BRANCH (From J3)
   { id: 'j5', type: 'junction', position: { x: 600, y: 400 }, data: { label: 'Junction 5', distance: null } },
-  { id: 'h5', type: 'house', position: { x: 600, y: 300 }, data: { label: 'House 5', distance: null } },  // Above j5
-  { id: 'h6', type: 'house', position: { x: 600, y: 550 }, data: { label: 'House 6', distance: null } },  // Below j5
+  { id: 'h5', type: 'house', position: { x: 535, y: 300 }, data: { label: 'House 5', distance: null } },  // Above j5
+  { id: 'h6', type: 'house', position: { x: 535, y: 550 }, data: { label: 'House 6', distance: null } },  // Below j5
   
   // FAR RIGHT BRANCH (From J5)
   { id: 'j6', type: 'junction', position: { x: 900, y: 400 }, data: { label: 'Junction 6', distance: null } },
-  { id: 'h8', type: 'house', position: { x: 900, y: 250 }, data: { label: 'House 8', distance: null } },  // Above j6
-  { id: 'h9', type: 'house', position: { x: 900, y: 550 }, data: { label: 'House 9', distance: null } },  // Below j6
-  { id: 'h10', type: 'house', position: { x: 750, y: 450 }, data: { label: 'House 10', distance: null } } // Left of j6
+  { id: 'h8', type: 'house', position: { x: 835, y: 250 }, data: { label: 'House 8', distance: null } },  // Above j6
+  { id: 'h9', type: 'house', position: { x: 835, y: 550 }, data: { label: 'House 9', distance: null } },  // Below j6
+  { id: 'h10', type: 'house', position: { x: 1000, y: 387 }, data: { label: 'House 10', distance: null } } // Left of j6
 ];
 
 const initialEdges = [
@@ -56,7 +56,7 @@ const initialEdges = [
   
   // From Junction 2
   { id: 'e-j2-h1', source: 'j2', sourceHandle: 'top', target: 'h1', targetHandle: 'bottom', type: 'step', data: { weight: 1 } },
-  { id: 'e-j2-h2', source: 'j2', sourceHandle: 'bottom', target: 'h2', targetHandle: 'top', type: 'step', data: { weight: 3 } },
+  { id: 'e-j2-h2', source: 'j2', sourceHandle: 'right', target: 'h2', targetHandle: 'left', type: 'step', data: { weight: 3 } },
   
   // From Junction 3
   { id: 'e-j3-j4', source: 'j3', sourceHandle: 'left', target: 'j4', targetHandle: 'right', type: 'step', data: { weight: 6 } },
@@ -76,7 +76,7 @@ const initialEdges = [
   { id: 'e-j6-h8', source: 'j6', sourceHandle: 'top', target: 'h8', targetHandle: 'bottom', type: 'step', data: { weight: 2 } },
   { id: 'e-j6-h9', source: 'j6', sourceHandle: 'bottom', target: 'h9', targetHandle: 'top', type: 'step', data: { weight: 4 } },
   // For House 10 (Left of J6), we use the left handle of J6 and the right handle of H10
-  { id: 'e-j6-h10', source: 'j6', sourceHandle: 'left', target: 'h10', targetHandle: 'right', type: 'step', data: { weight: 3 } }
+  { id: 'e-j6-h10', source: 'j6', sourceHandle: 'right', target: 'h10', targetHandle: 'left', type: 'step', data: { weight: 3 } }
 ];
 
 export default function BoardScene() {
@@ -207,6 +207,7 @@ export default function BoardScene() {
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         nodeTypes={nodeTypes}
+        nodesDraggable={false}
         fitView
       >
         <Background />

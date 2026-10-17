@@ -18,32 +18,30 @@ const initialNodes = [
   { id: 'start', type: 'pizza', position: { x: 357.5, y: -100 }, data: { label: "Luigi's Pizza", distance: null } },
   
   // FIRST JUNCTION
-  { id: 'j1', type: 'junction', position: { x: 400, y: 150 }, data: { label: 'Junction 1', distance: null } },
+  { id: 'j1', type: 'junction', position: { x: 400, y: 162.5 }, data: { label: 'Junction 1', distance: null } },
   
   // RIGHT BRANCH (From J1)
-  { id: 'j2', type: 'junction', position: { x: 600, y: 150 }, data: { label: 'Junction 2', distance: null } },
-  { id: 'h1', type: 'house', position: { x: 535, y: 50 }, data: { label: 'House 1', distance: null } },    // Above j2
-  { id: 'h2', type: 'house', position: { x: 700, y: 137 }, data: { label: 'House 2', distance: null } },  // Below j2
+  { id: 'j2', type: 'junction', position: { x: 555, y: 162.5 }, data: { label: 'Junction 2', distance: null } },
+  { id: 'h1', type: 'house', position: { x: 535, y: 50 }, data: { label: 'Cream House', distance: null } },    // Above j2
+  { id: 'h2', type: 'house', position: { x: 700, y: 137 }, data: { label: 'Red house', distance: null } },  // Below j2
   
   // DOWN BRANCH (From J1)
-  { id: 'j3', type: 'junction', position: { x: 400, y: 400 }, data: { label: 'Junction 3', distance: null } },
-  { id: 'h7', type: 'house', position: { x: 335, y: 550 }, data: { label: 'House 7', distance: null } },  // Below j3
+  { id: 'j3', type: 'junction', position: { x: 400, y: 412.5 }, data: { label: 'Junction 3', distance: null } },
+  { id: 'h7', type: 'house', position: { x: 380, y: 550 }, data: { label: 'Orange House', distance: null } },  // Below j3
   
   // LEFT BRANCH (From J3)
-  { id: 'j4', type: 'junction', position: { x: 200, y: 400 }, data: { label: 'Junction 4', distance: null } },
-  { id: 'h3', type: 'house', position: { x: 135, y: 250 }, data: { label: 'House 3', distance: null } },  // Above j4
-  { id: 'h4', type: 'house', position: { x: 135, y: 550 }, data: { label: 'House 4', distance: null } },  // Below j4
+  { id: 'j4', type: 'junction', position: { x: 155, y: 412.5 }, data: { label: 'Junction 4', distance: null } },
+  { id: 'h3', type: 'house', position: { x: 135, y: 250 }, data: { label: 'Yellow House', distance: null } },  // Above j4
+  { id: 'h4', type: 'house', position: { x: 135, y: 550 }, data: { label: 'Green House', distance: null } },  // Below j4
   
   // RIGHT BRANCH (From J3)
-  { id: 'j5', type: 'junction', position: { x: 600, y: 400 }, data: { label: 'Junction 5', distance: null } },
-  { id: 'h5', type: 'house', position: { x: 535, y: 300 }, data: { label: 'House 5', distance: null } },  // Above j5
-  { id: 'h6', type: 'house', position: { x: 535, y: 550 }, data: { label: 'House 6', distance: null } },  // Below j5
+  { id: 'j5', type: 'junction', position: { x: 555, y: 412.5 }, data: { label: 'Junction 5', distance: null } },
+  { id: 'h5', type: 'house', position: { x: 535, y: 300 }, data: { label: 'Light Blue House', distance: null } },  // Above j5
+  { id: 'h6', type: 'house', position: { x: 535, y: 550 }, data: { label: 'Dark Blue House', distance: null } },  // Below j5
   
   // FAR RIGHT BRANCH (From J5)
-  { id: 'j6', type: 'junction', position: { x: 900, y: 400 }, data: { label: 'Junction 6', distance: null } },
-  { id: 'h8', type: 'house', position: { x: 835, y: 250 }, data: { label: 'House 8', distance: null } },  // Above j6
-  { id: 'h9', type: 'house', position: { x: 835, y: 550 }, data: { label: 'House 9', distance: null } },  // Below j6
-  { id: 'h10', type: 'house', position: { x: 1000, y: 387 }, data: { label: 'House 10', distance: null } } // Left of j6
+  { id: 'j6', type: 'junction', position: { x: 855, y: 412.5 }, data: { label: 'Junction 6', distance: null } },
+  { id: 'h8', type: 'house', position: { x: 835, y: 250 }, data: { label: 'Pink House', distance: null } },  // Above j6
 ];
 
 const initialEdges = [
@@ -74,9 +72,6 @@ const initialEdges = [
   
   // From Junction 6
   { id: 'e-j6-h8', source: 'j6', sourceHandle: 'top', target: 'h8', targetHandle: 'bottom', type: 'step', data: { weight: 2 } },
-  { id: 'e-j6-h9', source: 'j6', sourceHandle: 'bottom', target: 'h9', targetHandle: 'top', type: 'step', data: { weight: 4 } },
-  // For House 10 (Left of J6), we use the left handle of J6 and the right handle of H10
-  { id: 'e-j6-h10', source: 'j6', sourceHandle: 'right', target: 'h10', targetHandle: 'left', type: 'step', data: { weight: 3 } }
 ];
 
 export default function BoardScene() {
@@ -200,53 +195,93 @@ export default function BoardScene() {
   };
 
   return (
-    <div style={{ width: '100vw', height: '100vh' }}>
-      <ReactFlow 
-        nodes={nodes} 
-        edges={edges} 
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        nodeTypes={nodeTypes}
-        nodesDraggable={false}
-        fitView
-      >
-        <Background />
-        <Controls />
-
-        {/* 4. Top Banner: Shows the Currently Visiting Node */}
-        {algoState.started && (
-          <Panel position="top-center">
-            <div style={{ 
-              background: algoState.finished ? '#228B22' : '#333', 
-              color: 'white', 
-              padding: '10px 20px', 
-              borderRadius: '8px', 
-              fontSize: '18px', 
-              fontWeight: 'bold',
-              boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
-            }}>
-              {algoState.finished ? "Algorithm Complete!" : `Currently Visiting: ${algoState.currentVisitingName}`}
-            </div>
-          </Panel>
-        )}
+    // Change to a Flex container to put the sidebar and map side-by-side
+    <div style={{ display: 'flex', width: '100vw', height: '100vh', backgroundColor: '#e0e0e0' }}>
+      
+      {/* LEFT SIDEBAR: Delivery Distances */}
+      <div style={{ 
+        width: '200px', 
+        backgroundColor: '#2c3e50', 
+        color: '#ecf0f1', 
+        padding: '20px', 
+        overflowY: 'auto', 
+        boxShadow: '2px 0 10px rgba(0,0,0,0.5)', 
+        zIndex: 10 
+      }}>
+        <h2 style={{ borderBottom: '2px solid #34495e', paddingBottom: '10px', marginTop: 0 }}>
+          Customer Distances
+        </h2>
         
-        {/* 5. Next Step Button */}
-        <Panel position="top-left">
-          <button 
-            onClick={runNextStep}
-            disabled={algoState.finished}
-            style={{ 
-              padding: '10px 20px', 
-              fontSize: '16px', 
-              cursor: algoState.finished ? 'not-allowed' : 'pointer', 
-              fontWeight: 'bold',
-              opacity: algoState.finished ? 0.5 : 1
-            }}
-          >
-            {algoState.started ? 'Next Step' : 'Start Dijkstra'}
-          </button>
-        </Panel>
-      </ReactFlow>
+        <ul style={{ listStyle: 'none', padding: 0 }}>
+          {nodes
+            .filter(n => n.type === 'house') // Only show houses in the list
+            .map(house => (
+              <li key={house.id} style={{ 
+                margin: '15px 0', 
+                padding: '15px', 
+                backgroundColor: '#34495e', 
+                borderRadius: '8px',
+                // Highlight the house in the list if the algorithm is currently checking it
+                borderLeft: house.id === algoState.currentVisitingName ? '4px solid #ff0072' : '4px solid transparent'
+              }}>
+                <div style={{ fontWeight: 'bold', fontSize: '1.1em' }}>{house.data.label}</div>
+                <div style={{ marginTop: '5px', color: '#bdc3c7' }}>
+                  Distance: {house.data.distance === null ? 'Unknown' : house.data.distance}
+                </div>
+              </li>
+          ))}
+        </ul>
+      </div>
+
+      {/* RIGHT CANVAS: React Flow Map */}
+      <div style={{ flexGrow: 0.8, position: 'relative' }}>
+        <ReactFlow 
+          nodes={nodes} 
+          edges={edges} 
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
+          nodeTypes={nodeTypes}
+          nodesDraggable={false}
+          fitView
+        >
+          <Background />
+          <Controls />
+
+          {/* Top Status Banner */}
+          {algoState.started && (
+            <Panel position="top-center">
+              <div style={{ 
+                background: algoState.finished ? '#27ae60' : '#333', 
+                color: 'white', 
+                padding: '10px 20px', 
+                borderRadius: '8px', 
+                fontSize: '18px', 
+                fontWeight: 'bold',
+                boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+              }}>
+                {algoState.finished ? "Algorithm Complete!" : `Currently Visiting: ${algoState.currentVisitingName}`}
+              </div>
+            </Panel>
+          )}
+          
+          {/* Controls Panel */}
+          <Panel position="top-right">
+            <button 
+              onClick={runNextStep}
+              disabled={algoState.finished}
+              style={{ 
+                padding: '10px 20px', 
+                fontSize: '16px', 
+                cursor: algoState.finished ? 'not-allowed' : 'pointer', 
+                fontWeight: 'bold',
+                opacity: algoState.finished ? 0.5 : 1
+              }}
+            >
+              {algoState.started ? 'Next Step' : 'Start Dijkstra'}
+            </button>
+          </Panel>
+        </ReactFlow>
+      </div>
     </div>
   );
 }

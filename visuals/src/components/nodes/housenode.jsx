@@ -10,7 +10,6 @@ import BlueHouse from '../artwork/Houses/BlueHouse.png';
 import IndigoHouse from '../artwork/Houses/IndigoHouse.png';
 import PurpleHouse from '../artwork/Houses/PurpleHouse.png';
 
-// Array of all imported house assets
 const houseOptions = [
   House, 
   RedHouse, 
@@ -22,35 +21,44 @@ const houseOptions = [
   PurpleHouse
 ];
 
-export default function HouseNode({ data }) {
-  // useState with a function ensures it picks a random house ONCE on mount
-  const [randomHouse] = useState(() => {
-    const randomIndex = Math.floor(Math.random() * houseOptions.length);
-    return houseOptions[randomIndex];
+// Track the sequence, but also remember which exact node got which image
+let sequenceIndex = 0;
+const assignedHouses = {};
+
+// We extract the 'id' prop, which React Flow automatically passes to all custom nodes
+export default function HouseNode({ id, data }) {
+  
+  const [houseImage] = useState(() => {
+    // If Strict Mode double-renders, just return the image this ID was already given
+    if (assignedHouses[id]) {
+      return assignedHouses[id];
+    }
+
+    // Otherwise, assign the next sequential image and increment the counter
+    const image = houseOptions[sequenceIndex % houseOptions.length];
+    assignedHouses[id] = image;
+    sequenceIndex++;
+    
+    return image;
   });
 
   return (
     <div>
       <img 
-        src={randomHouse} 
+        src={houseImage} 
         alt="House" 
         style={{
           width: '64px',
           height: '64px',
-          imageRendering: 'pixelated', // Keeps pixel art sharp
+          imageRendering: 'pixelated', 
           marginBottom: '4px'
         }}
       />
-      {data.distance !== null && data.distance !== undefined && (
-        <div style={{ marginTop: '5px', fontSize: '12px', color: 'blue' }}>
-          Distance: {data.distance}
-        </div>
-      )}
 
-      {/* Give the house multiple target sockets */}
-      <Handle type="target" position={Position.Left} id="left" />
-      <Handle type="target" position={Position.Top} id="top" />
-      <Handle type="target" position={Position.Bottom} id="bottom" />
+      <Handle type="target" position={Position.Left} id="left" style={{ opacity: 0 }} />
+      <Handle type="target" position={Position.Top} id="top" style={{ opacity: 0 }} />
+      <Handle type="target" position={Position.Bottom} id="bottom" style={{ opacity: 0 }} />
+      <Handle type="target" position={Position.Right} id="right" style={{ opacity: 0 }} />
     </div>
   );
 }

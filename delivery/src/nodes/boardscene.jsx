@@ -68,7 +68,8 @@ export default function BoardScene() {
     phase: 'idle',
     explanation: "",
     quizOptions: [],
-    correctAnswer: null
+    correctAnswer: null,
+    correctDistance: null
   });
 
   const runNextStep = (overrideQuiz = false) => {
@@ -90,7 +91,10 @@ export default function BoardScene() {
         currentVisitingId: "start",
         stepCount: 0,
         phase: 'explaining',
-        explanation: "Initialization: We begin at Luigi's Pizza. We set its distance to 0. All other nodes are temporarily set to Infinity (∞) because we haven't discovered routes to them yet."
+        explanation: "Initialization: We begin at Luigi's Pizza. We set its distance to 0. All other nodes are temporarily set to Infinity (∞) because we haven't discovered routes to them yet.",
+        quizOptions: [],
+        correctAnswer: null,
+        correctDistance: null
       });
 
       setNodes(nds => nds.map(n => ({
@@ -138,12 +142,14 @@ export default function BoardScene() {
       return;
     }
 
-    if (unvisited.length <= 5 && !overrideQuiz && reachableUnvisited.length > 2) {
+    // Trigger quiz only for the third last and fourth last decisions (when exactly 4 or 5 unvisited nodes remain)
+    if ((unvisited.length === 4 || unvisited.length === 5) && !overrideQuiz && reachableUnvisited.length > 1) {
       setAlgoState(prev => ({
         ...prev,
         phase: 'quiz',
         quizOptions: reachableUnvisited,
-        correctAnswer: nextNodeId
+        correctAnswer: nextNodeId,
+        correctDistance: minDistance
       }));
       setQuizFeedback("");
       setIsQuizCorrect(false);
@@ -210,7 +216,7 @@ export default function BoardScene() {
         style: {
           ...n.style,
           border: isCurrent ? '3px solid #ff0072' : isVisited ? '2px solid transparent' : 'none',
-          boxShadow: isCurrent ? '0 0 15px #ff0072' : 'none',
+          boxShadow: 'none', 
           borderRadius: '5px',
           transition: 'all 0.3s ease'
         }
@@ -284,6 +290,13 @@ export default function BoardScene() {
                           setTimeout(() => {
                             runNextStep(true); 
                           }, 1500);
+                        } else if (opt.dist === algoState.correctDistance) {
+                          setQuizFeedback(`Correct! ${nodeName} is mathematically tied for the lowest distance. In this case, we'll arbitrarily run with the other one for this step.`);
+                          setIsQuizCorrect(true);
+                          
+                          setTimeout(() => {
+                            runNextStep(true); 
+                          }, 3000); 
                         } else {
                           setQuizFeedback(`Not quite! ${nodeName} has a distance of ${opt.dist}. Dijkstra always picks the node with the absolute lowest number.`);
                           setIsQuizCorrect(false);
@@ -307,7 +320,7 @@ export default function BoardScene() {
                 })}
               </div>
 
-              <div style={{ minHeight: '24px', color: isQuizCorrect ? '#27ae60' : '#e74c3c', fontWeight: 'bold' }}>
+              <div style={{ minHeight: '48px', color: isQuizCorrect ? '#27ae60' : '#e74c3c', fontWeight: 'bold' }}>
                 {quizFeedback}
               </div>
             </div>
@@ -343,7 +356,6 @@ export default function BoardScene() {
             </Panel>
           )}
 
-          {/* Dynamic Explanation Panel */}
           {algoState.phase === 'explaining' && showExplanation && (
             <Panel position={explanationPosition} style={{ 
               marginBottom: explanationPosition === 'bottom-center' ? '20px' : '0', 

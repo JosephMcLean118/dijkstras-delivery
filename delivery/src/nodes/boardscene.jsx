@@ -14,7 +14,7 @@ const nodeTypes = {
 
 // Map Data
 const initialNodes = [
-  { id: 'start', type: 'pizza', position: { x: 379.5, y: -100 }, data: { label: "Pizza Place", distance: null } },
+  { id: 'start', type: 'pizza', position: { x: 379.5, y: -100 }, data: { label: "Luigi's Pizza", distance: null } },
   { id: 'j1', type: 'junction', position: { x: 400, y: 162.5 }, data: { label: 'Junction 1', distance: null } },
   { id: 'j2', type: 'junction', position: { x: 555, y: 162.5 }, data: { label: 'Junction 2', distance: null } },
   { id: 'h1', type: 'house', position: { x: 535, y: 50 }, data: { label: 'Cream House', distance: null } },
@@ -90,7 +90,7 @@ export default function BoardScene() {
         currentVisitingId: "start",
         stepCount: 0,
         phase: 'explaining',
-        explanation: "Initialization: We begin at the Pizza Place. We set its distance to 0. All other nodes are temporarily set to Infinity (∞) because we haven't discovered routes to them yet."
+        explanation: "Initialization: We begin at Luigi's Pizza. We set its distance to 0. All other nodes are temporarily set to Infinity (∞) because we haven't discovered routes to them yet."
       });
 
       setNodes(nds => nds.map(n => ({
@@ -104,7 +104,6 @@ export default function BoardScene() {
         style: { stroke: '#999', strokeWidth: 2 } 
       })));
       
-      setShowExplanation(false);
       return;
     }
 
@@ -136,7 +135,6 @@ export default function BoardScene() {
       setNodes(nds => nds.map(n => ({ ...n, style: { ...n.style, boxShadow: 'none', border: 'none' } })));
       setEdges(eds => eds.map(e => ({ ...e, animated: false, style: { stroke: '#999', strokeWidth: 2 } })));
       
-      setShowExplanation(true);
       return;
     }
 
@@ -232,8 +230,6 @@ export default function BoardScene() {
         }
       };
     }));
-    
-    setShowExplanation(false);
   };
 
   const topNodes = ['start', 'h1', 'h2', 'j1', 'j2'];
@@ -270,7 +266,7 @@ export default function BoardScene() {
             <div style={{ background: 'white', padding: '30px', borderRadius: '12px', maxWidth: '550px', textAlign: 'center', boxShadow: '0 10px 25px rgba(0,0,0,0.5)' }}>
               <h2 style={{ marginTop: 0, color: '#2c3e50' }}>Algorithm Quiz Time!</h2>
               <p style={{ fontSize: '16px', marginBottom: '20px', color: '#333' }}>
-                Based on the currently known distances on the map, which unvisited location should Dijkstra's Algorithm lock in and visit next?
+                Based on the currently known distances on the map, which unvisited location should Dijkstra's Algorithm lock in and visit next? (See list on the right!)
               </p>
               
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', justifyContent: 'center', marginBottom: '15px' }}>
@@ -331,7 +327,7 @@ export default function BoardScene() {
           fitView
         >
           {algoState.started && (
-            <Panel position="top-center">
+            <Panel position="top-left">
               <div style={{ 
                 background: algoState.finished ? '#27ae60' : '#333', 
                 color: 'white', 
@@ -346,7 +342,8 @@ export default function BoardScene() {
             </Panel>
           )}
 
-          {algoState.phase === 'explaining' && (
+          {/* Dynamic Explanation Panel */}
+          {algoState.phase === 'explaining' && showExplanation && (
             <Panel position={explanationPosition} style={{ 
               marginBottom: explanationPosition === 'bottom-center' ? '20px' : '0', 
               marginTop: explanationPosition === 'top-center' ? '70px' : '0', 
@@ -356,67 +353,65 @@ export default function BoardScene() {
               paddingLeft: '20px',
               pointerEvents: 'none' 
             }}>
-              
-              {!showExplanation ? (
-                <button 
-                  onClick={() => setShowExplanation(true)}
-                  style={{
-                    pointerEvents: 'auto',
-                    padding: '10px 20px',
-                    background: '#f39c12',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '25px',
-                    cursor: 'pointer',
-                    fontWeight: 'bold',
-                    fontSize: '15px',
-                    boxShadow: '0 4px 6px rgba(0,0,0,0.2)'
-                  }}
-                >
-                  See full explanation
-                </button>
-              ) : (
-                <div style={{ 
-                  pointerEvents: 'auto',
-                  background: '#fffcd1', 
-                  border: '2px solid #f1c40f', 
-                  padding: '15px 25px', 
-                  borderRadius: '8px', 
-                  width: '80%',
-                  maxWidth: '600px', 
-                  whiteSpace: 'pre-wrap', 
-                  boxShadow: '0 4px 15px rgba(0,0,0,0.1)', 
-                  color: '#2c3e50', 
-                  fontSize: '15px', 
-                  lineHeight: '1.5',
-                  position: 'relative'
-                }}>
-                  <button 
-                    onClick={() => setShowExplanation(false)}
-                    style={{ position: 'absolute', top: '10px', right: '15px', background: 'transparent', border: 'none', cursor: 'pointer', fontWeight: 'bold', color: '#e67e22', fontSize: '14px' }}
-                  >
-                    ✕ Close
-                  </button>
-                  <strong style={{ display: 'block', marginBottom: '10px' }}>Algorithm Log:</strong>
-                  {algoState.explanation}
-                </div>
-              )}
+              <div style={{ 
+                pointerEvents: 'auto',
+                background: '#fffcd1', 
+                border: '2px solid #f1c40f', 
+                padding: '15px 25px', 
+                borderRadius: '8px', 
+                width: '80%',
+                maxWidth: '600px', 
+                whiteSpace: 'pre-wrap', 
+                boxShadow: '0 4px 15px rgba(0,0,0,0.1)', 
+                color: '#2c3e50', 
+                fontSize: '15px', 
+                lineHeight: '1.5'
+              }}>
+                <strong style={{ display: 'block', marginBottom: '10px' }}>Algorithm Log:</strong>
+                {algoState.explanation}
+              </div>
             </Panel>
           )}
           
-          <Panel position="top-right">
+          <Panel position="top-right" style={{ display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'flex-end', width: '200px' }}>
             <button 
               onClick={() => runNextStep(false)}
               disabled={algoState.finished || algoState.phase === 'quiz'}
               style={{ 
-                padding: '10px 20px', 
-                fontSize: '16px', 
+                width: '100%',
+                padding: '12px 20px', 
+                fontSize: '15px', 
+                backgroundColor: '#3498db',
+                color: 'white',
+                border: 'none',
+                borderRadius: '6px',
                 cursor: (algoState.finished || algoState.phase === 'quiz') ? 'not-allowed' : 'pointer', 
                 fontWeight: 'bold',
-                opacity: (algoState.finished || algoState.phase === 'quiz') ? 0.5 : 1
+                opacity: (algoState.finished || algoState.phase === 'quiz') ? 0.5 : 1,
+                boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
               }}
             >
               {algoState.started ? 'Next Step' : 'Start Dijkstra'}
+            </button>
+            
+            <button 
+              onClick={() => setShowExplanation(!showExplanation)}
+              disabled={!algoState.started}
+              style={{ 
+                width: '100%',
+                padding: '10px 20px', 
+                fontSize: '14px', 
+                backgroundColor: showExplanation ? '#27ae60' : '#95a5a6',
+                color: 'white',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: !algoState.started ? 'not-allowed' : 'pointer', 
+                fontWeight: 'bold',
+                opacity: !algoState.started ? 0.5 : 1,
+                boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+              }}
+            >
+              Explanation: {showExplanation ? 'ON' : 'OFF'}
             </button>
           </Panel>
         </ReactFlow>

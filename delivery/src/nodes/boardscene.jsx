@@ -324,6 +324,7 @@ export default function BoardScene() {
           panOnDrag={false}       
           zoomOnScroll={false}    
           zoomOnDoubleClick={false} 
+          zoomOnPinch={false}
           fitView
         >
           {algoState.started && (

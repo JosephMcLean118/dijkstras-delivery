@@ -8,10 +8,10 @@ function Body() {
         <>
             <div className="d-flex m-4" style={{ gap: "8.5vw" }}>
                 <Widget
-                    title="Practice"
+                    title="Tutorial"
                     details="This will serve to teach you the fundamentals of Dijkstra's Algorithm through the wondeful world of pizza delivery."
                     to="/practice"
-                    gameType="Practice"
+                    gameType="Tutorial"
                     image={practice}
                     
 

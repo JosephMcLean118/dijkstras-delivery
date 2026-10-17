@@ -4,7 +4,7 @@ import TutorialSection from "./TutorialSection";
 import { useState, useRef, useEffect } from "react";
 
 function Pbody() {
-    const [tab, setTab] = useState("practice");
+    const [tab, setTab] = useState("tutorial");
     const audioRef = useRef(null);
 
     // create the audio object once, and stop it if the page is left

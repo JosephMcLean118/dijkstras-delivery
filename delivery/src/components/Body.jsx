@@ -1,4 +1,7 @@
 import Widget from "./Widget";
+import PizzPic3 from "../../src/components/PizzPic3.png";
+import practice from "../../src/components/practice.png";
+
 function Body() {
 
     return(
@@ -9,12 +12,16 @@ function Body() {
                     details="This will serve to teach you the fundamentals of Dijkstra's Algorithm through the wondeful world of pizza delivery."
                     to="/practice"
                     gameType="Practice"
+                    image={practice}
+                    
+
                 />
                 <Widget
                     title="Play"
                     details="Put your knowledge to the test! Try using Dijkstras algorithm to find the most fuel-efficient path to deliver your pizzas!"
                     to="/play"
                     gameType="Play"
+                    image={PizzPic3}
                 />
             </div>
         </>

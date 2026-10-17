@@ -1,4 +1,4 @@
-import React from 'react';
+import BoardScene from '../nodes/boardscene';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 export default function Play() { 
@@ -22,10 +22,9 @@ export default function Play() {
         </div>
         <button class="btn btn-primary mt-3 rounded-pill" type="submit">Begin Delivery</button>
 
-        <div 
-          className="card bg-white mt-3 " 
-          style={{ height: '500px', width: '100%' }}
-        ></div>
+        <div className="card bg-white mt-3" style={{ height: '500px', width: '100%' }}>
+          <BoardScene />
+        </div>
       </div>
     </div>
     </>

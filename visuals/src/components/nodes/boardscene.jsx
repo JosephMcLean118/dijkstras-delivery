@@ -12,65 +12,39 @@ const nodeTypes = {
   junction: JunctionNode, 
 };
 
-// 1. Expanded Map: We've added a second junction and a third house
+// Map Data
 const initialNodes = [
-  // THE START
   { id: 'start', type: 'pizza', position: { x: 379.5, y: -100 }, data: { label: "Luigi's Pizza", distance: null } },
-  
-  // FIRST JUNCTION
   { id: 'j1', type: 'junction', position: { x: 400, y: 162.5 }, data: { label: 'Junction 1', distance: null } },
-  
-  // RIGHT BRANCH (From J1)
   { id: 'j2', type: 'junction', position: { x: 555, y: 162.5 }, data: { label: 'Junction 2', distance: null } },
-  { id: 'h1', type: 'house', position: { x: 535, y: 50 }, data: { label: 'Cream House', distance: null } },    // Above j2
-  { id: 'h2', type: 'house', position: { x: 700, y: 137 }, data: { label: 'Red house', distance: null } },  // Below j2
-  
-  // DOWN BRANCH (From J1)
+  { id: 'h1', type: 'house', position: { x: 535, y: 50 }, data: { label: 'Cream House', distance: null } },
+  { id: 'h2', type: 'house', position: { x: 700, y: 137 }, data: { label: 'Red house', distance: null } },
   { id: 'j3', type: 'junction', position: { x: 400, y: 412.5 }, data: { label: 'Junction 3', distance: null } },
-  { id: 'h7', type: 'house', position: { x: 380, y: 550 }, data: { label: 'Orange House', distance: null } },  // Below j3
-  
-  // LEFT BRANCH (From J3)
+  { id: 'h7', type: 'house', position: { x: 380, y: 550 }, data: { label: 'Orange House', distance: null } },
   { id: 'j4', type: 'junction', position: { x: 155, y: 412.5 }, data: { label: 'Junction 4', distance: null } },
-  { id: 'h3', type: 'house', position: { x: 135, y: 250 }, data: { label: 'Yellow House', distance: null } },  // Above j4
-  { id: 'h4', type: 'house', position: { x: 135, y: 550 }, data: { label: 'Green House', distance: null } },  // Below j4
-  
-  // RIGHT BRANCH (From J3)
+  { id: 'h3', type: 'house', position: { x: 135, y: 250 }, data: { label: 'Yellow House', distance: null } },
+  { id: 'h4', type: 'house', position: { x: 135, y: 550 }, data: { label: 'Green House', distance: null } },
   { id: 'j5', type: 'junction', position: { x: 555, y: 412.5 }, data: { label: 'Junction 5', distance: null } },
-  { id: 'h5', type: 'house', position: { x: 535, y: 300 }, data: { label: 'Light Blue House', distance: null } },  // Above j5
-  { id: 'h6', type: 'house', position: { x: 535, y: 550 }, data: { label: 'Dark Blue House', distance: null } },  // Below j5
-  
-  // FAR RIGHT BRANCH (From J5)
+  { id: 'h5', type: 'house', position: { x: 535, y: 300 }, data: { label: 'Light Blue House', distance: null } },
+  { id: 'h6', type: 'house', position: { x: 535, y: 550 }, data: { label: 'Dark Blue House', distance: null } },
   { id: 'j6', type: 'junction', position: { x: 855, y: 412.5 }, data: { label: 'Junction 6', distance: null } },
-  { id: 'h8', type: 'house', position: { x: 835, y: 250 }, data: { label: 'Pink House', distance: null } },  // Above j6
+  { id: 'h8', type: 'house', position: { x: 835, y: 250 }, data: { label: 'Pink House', distance: null } },
 ];
 
 const initialEdges = [
-  // From Pizza Place
   { id: 'e-start-j1', source: 'start', sourceHandle: 'bottom', target: 'j1', targetHandle: 'top', type: 'step', data: { weight: 2 } },
-  
-  // From Junction 1
   { id: 'e-j1-j2', source: 'j1', sourceHandle: 'right', target: 'j2', targetHandle: 'left', type: 'step', data: { weight: 4 } },
   { id: 'e-j1-j3', source: 'j1', sourceHandle: 'bottom', target: 'j3', targetHandle: 'top', type: 'step', data: { weight: 5 } },
-  
-  // From Junction 2
   { id: 'e-j2-h1', source: 'j2', sourceHandle: 'top', target: 'h1', targetHandle: 'bottom', type: 'step', data: { weight: 1 } },
   { id: 'e-j2-h2', source: 'j2', sourceHandle: 'right', target: 'h2', targetHandle: 'left', type: 'step', data: { weight: 3 } },
-  
-  // From Junction 3
   { id: 'e-j3-j4', source: 'j3', sourceHandle: 'left', target: 'j4', targetHandle: 'right', type: 'step', data: { weight: 6 } },
   { id: 'e-j3-j5', source: 'j3', sourceHandle: 'right', target: 'j5', targetHandle: 'left', type: 'step', data: { weight: 2 } },
   { id: 'e-j3-h7', source: 'j3', sourceHandle: 'bottom', target: 'h7', targetHandle: 'top', type: 'step', data: { weight: 4 } },
-  
-  // From Junction 4
   { id: 'e-j4-h3', source: 'j4', sourceHandle: 'top', target: 'h3', targetHandle: 'bottom', type: 'step', data: { weight: 2 } },
   { id: 'e-j4-h4', source: 'j4', sourceHandle: 'bottom', target: 'h4', targetHandle: 'top', type: 'step', data: { weight: 3 } },
-  
-  // From Junction 5
   { id: 'e-j5-h5', source: 'j5', sourceHandle: 'top', target: 'h5', targetHandle: 'bottom', type: 'step', data: { weight: 1 } },
   { id: 'e-j5-h6', source: 'j5', sourceHandle: 'bottom', target: 'h6', targetHandle: 'top', type: 'step', data: { weight: 5 } },
   { id: 'e-j5-j6', source: 'j5', sourceHandle: 'right', target: 'j6', targetHandle: 'left', type: 'step', data: { weight: 7 } },
-  
-  // From Junction 6
   { id: 'e-j6-h8', source: 'j6', sourceHandle: 'top', target: 'h8', targetHandle: 'bottom', type: 'step', data: { weight: 2 } },
 ];
 
@@ -78,18 +52,28 @@ export default function BoardScene() {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
-  // 3. Algorithm State: This tracks Dijkstra's "brain" between button clicks
+  const [quizFeedback, setQuizFeedback] = useState("");
+  // NEW: State to track if the explanation panel is open or collapsed
+  const [showExplanation, setShowExplanation] = useState(false);
+
   const [algoState, setAlgoState] = useState({
     started: false,
     finished: false,
     distances: {},
     unvisited: [],
     visited: [],
-    currentVisitingName: ""
+    currentVisitingName: "",
+    currentVisitingId: "", // NEW: Track the specific node ID to determine layout placement
+    stepCount: 0,
+    phase: 'idle',
+    explanation: "",
+    quizOptions: [],
+    correctAnswer: null
   });
 
-  const runNextStep = () => {
-    // STEP A: Initialization
+  const runNextStep = (overrideQuiz = false) => {
+    if (algoState.finished) return;
+
     if (!algoState.started) {
       const initDistances = {};
       initialNodes.forEach(n => {
@@ -102,10 +86,13 @@ export default function BoardScene() {
         distances: initDistances,
         unvisited: initialNodes.map(n => n.id),
         visited: [],
-        currentVisitingName: "Initializing..."
+        currentVisitingName: "Initializing...",
+        currentVisitingId: "start",
+        stepCount: 0,
+        phase: 'explaining',
+        explanation: "Initialization: We begin at Luigi's Pizza. We set its distance to 0. All other nodes are temporarily set to Infinity (∞) because we haven't discovered routes to them yet."
       });
 
-      // Reset all nodes and edges to default styles
       setNodes(nds => nds.map(n => ({
         ...n,
         data: { ...n.data, distance: n.id === 'start' ? 0 : '∞' }
@@ -116,44 +103,68 @@ export default function BoardScene() {
         animated: false,
         style: { stroke: '#999', strokeWidth: 2 } 
       })));
+      
+      setShowExplanation(false); // Reset toggle on start
       return;
     }
 
-    // STEP B: Run Algorithm Iteration
     let { distances, unvisited, visited } = algoState;
     
     let nextNodeId = null;
     let minDistance = Infinity;
+    let reachableUnvisited = [];
     
     unvisited.forEach(id => {
+      if (distances[id] < Infinity) {
+        reachableUnvisited.push({ id, dist: distances[id] });
+      }
       if (distances[id] < minDistance) {
         minDistance = distances[id];
         nextNodeId = id;
       }
     });
 
-    // If finished
     if (!nextNodeId || minDistance === Infinity) {
-      setAlgoState(prev => ({ ...prev, finished: true, currentVisitingName: "Finished!" }));
+      setAlgoState(prev => ({ 
+        ...prev, 
+        finished: true, 
+        currentVisitingName: "Finished!", 
+        currentVisitingId: prev.currentVisitingId, // Keep it where it was
+        phase: 'explaining',
+        explanation: "Algorithm Complete! All reachable destinations have been mapped with their absolute shortest routes from the Pizza Place." 
+      }));
       setNodes(nds => nds.map(n => ({ ...n, style: { ...n.style, boxShadow: 'none', border: 'none' } })));
+      setEdges(eds => eds.map(e => ({ ...e, animated: false, style: { stroke: '#999', strokeWidth: 2 } })));
       
-      // Clear all red edge highlights when done
-      setEdges(eds => eds.map(e => ({ 
-        ...e, 
-        animated: false, 
-        style: { stroke: '#999', strokeWidth: 2 } 
-      })));
+      setShowExplanation(true); // Auto-show the final completion message
+      return;
+    }
+
+    if (unvisited.length <= 5 && !overrideQuiz && reachableUnvisited.length > 2) {
+      setAlgoState(prev => ({
+        ...prev,
+        phase: 'quiz',
+        quizOptions: reachableUnvisited,
+        correctAnswer: nextNodeId
+      }));
+      setQuizFeedback("");
       return;
     }
 
     const newDistances = { ...distances };
     const connectedEdges = edges.filter(e => e.source === nextNodeId);
+    let edgeUpdatesLog = [];
     
     connectedEdges.forEach(edge => {
       const neighborId = edge.target;
       if (unvisited.includes(neighborId)) {
         const newDist = newDistances[nextNodeId] + edge.data.weight;
+        
         if (newDist < newDistances[neighborId]) {
+          const neighborName = nodes.find(n => n.id === neighborId).data.label;
+          const oldDistText = newDistances[neighborId] === Infinity ? '∞' : newDistances[neighborId];
+          edgeUpdatesLog.push(`${neighborName} (${oldDistText} ➔ ${newDist})`);
+          
           newDistances[neighborId] = newDist;
         }
       }
@@ -163,13 +174,28 @@ export default function BoardScene() {
     const newVisited = [...visited, nextNodeId];
     const visitingNodeObj = nodes.find(n => n.id === nextNodeId);
 
+    const reachableText = reachableUnvisited.map(n => `${nodes.find(x=>x.id===n.id).data.label} (${n.dist})`).join(', ');
+    let explanationText = `Step ${algoState.stepCount + 1}\n\n`;
+    explanationText += `• Candidate Nodes: ${reachableText}\n`;
+    explanationText += `• Selection: We lock in ${visitingNodeObj.data.label} because it currently has the absolute lowest known distance (${minDistance}).\n`;
+    
+    if (edgeUpdatesLog.length > 0) {
+      explanationText += `• Updates: Scanning roads leaving ${visitingNodeObj.data.label} revealed faster routes to: ${edgeUpdatesLog.join(', ')}.`;
+    } else {
+      explanationText += `• Updates: Scanning roads leaving ${visitingNodeObj.data.label} revealed no faster routes to any remaining unvisited neighbors.`;
+    }
+
     setAlgoState({
       started: true,
       finished: newUnvisited.length === 0,
       distances: newDistances,
       unvisited: newUnvisited,
       visited: newVisited,
-      currentVisitingName: visitingNodeObj.data.label
+      currentVisitingName: visitingNodeObj.data.label,
+      currentVisitingId: nextNodeId,
+      stepCount: algoState.stepCount + 1,
+      phase: 'explaining',
+      explanation: explanationText
     });
 
     setNodes(nds => nds.map(n => {
@@ -192,69 +218,90 @@ export default function BoardScene() {
       };
     }));
 
-    // Highlight the edges currently being checked
     setEdges(eds => eds.map(e => {
-      // An edge is active if it leaves the current node and points to an unvisited node
       const isActive = e.source === nextNodeId && newUnvisited.includes(e.target);
-      
       return {
         ...e,
-        animated: isActive, // Native React Flow prop that adds moving dots to the line
+        animated: isActive, 
         style: {
           ...e.style,
-          stroke: isActive ? '#ff0000' : '#999', // Bright red if active, grey otherwise
-          strokeWidth: isActive ? 4 : 2,         // Thicker line when active
+          stroke: isActive ? '#ff0000' : '#999', 
+          strokeWidth: isActive ? 4 : 2,        
           transition: 'stroke 0.3s ease, stroke-width 0.3s ease'
         }
       };
     }));
+    
+    // Collapse explanation on new step automatically
+    setShowExplanation(false);
   };
 
+  // Determine dynamic placement for the explanation UI
+  const topNodes = ['start', 'h1', 'h2', 'j1', 'j2'];
+  const explanationPosition = topNodes.includes(algoState.currentVisitingId) ? 'bottom-center' : 'top-center';
+
   return (
-    // Change to a Flex container to put the sidebar and map side-by-side
-    <div style={{ display: 'flex', width: '100vw', height: '100vh', backgroundColor: '#e0e0e0' }}>
+    <div style={{ display: 'flex', width: '100%', height: '100vh', backgroundColor: '#e0e0e0', overflowX: 'hidden', margin: 0, padding: 0, boxSizing: 'border-box' }}>
       
-      {/* LEFT SIDEBAR: Delivery Distances */}
-      <div style={{ 
-        width: '200px', 
-        backgroundColor: '#2c3e50', 
-        color: '#ecf0f1', 
-        padding: '15px', // Reduced from 20px
-        overflowY: 'auto', 
-        boxShadow: '2px 0 10px rgba(0,0,0,0.5)', 
-        zIndex: 10 
-      }}>
-        <h2 style={{ 
-          borderBottom: '2px solid #34495e', 
-          paddingBottom: '8px', 
-          margin: '0 0 10px 0', // Reduced bottom margin
-          fontSize: '1.2em'     // Slightly smaller header
-        }}>
+      <div style={{ width: '200px', backgroundColor: '#2c3e50', color: '#ecf0f1', padding: '15px', overflowY: 'auto', boxShadow: '2px 0 10px rgba(0,0,0,0.5)', zIndex: 10 }}>
+        <h2 style={{ borderBottom: '2px solid #34495e', paddingBottom: '8px', margin: '0 0 10px 0', fontSize: '1.2em' }}>
           Customer Distances
         </h2>
-        
         <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-          {nodes
-            .filter(n => n.type === 'house') 
-            .map(house => (
-              <li key={house.id} style={{ 
-                margin: '6px 0',      // Reduced from 15px
-                padding: '8px 12px',  // Reduced from 15px
-                backgroundColor: '#34495e', 
-                borderRadius: '6px',
-                borderLeft: house.id === algoState.currentVisitingName ? '4px solid #ff0072' : '4px solid transparent'
-              }}>
-                <div style={{ fontWeight: 'bold', fontSize: '0.9em' }}>{house.data.label}</div> {/* Reduced from 1.1em */}
+          {nodes.filter(n => n.type === 'house').map(house => (
+              <li key={house.id} style={{ margin: '6px 0', padding: '8px 12px', backgroundColor: '#34495e', borderRadius: '6px', borderLeft: house.id === algoState.currentVisitingName ? '4px solid #ff0072' : '4px solid transparent' }}>
+                <div style={{ fontWeight: 'bold', fontSize: '0.9em' }}>{house.data.label}</div>
                 <div style={{ marginTop: '2px', color: '#bdc3c7', fontSize: '0.85em' }}>
                   Distance: {house.data.distance === null ? 'Unknown' : house.data.distance}
                 </div>
               </li>
           ))}
         </ul>
+
+        <h2 style={{ borderBottom: '2px solid #34495e', paddingBottom: '8px', margin: '25px 0 10px 0', fontSize: '1.2em' }}>Visited Set</h2>
+        <div style={{ fontSize: '0.85em', color: '#bdc3c7', lineHeight: '1.5' }}>
+          {algoState.visited.length === 0 ? 'No nodes visited yet.' : algoState.visited.map(id => nodes.find(n => n.id === id)?.data.label).join(' → ')}
+        </div>
       </div>
 
-      {/* RIGHT CANVAS: React Flow Map */}
-      <div style={{ flexGrow: 0.6, position: 'relative', backgroundColor: 'white' }}>
+      <div style={{ flexGrow: 0.85, position: 'relative', backgroundColor: 'white' }}>
+        
+        {algoState.phase === 'quiz' && (
+          <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.7)', zIndex: 1000, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ background: 'white', padding: '30px', borderRadius: '12px', maxWidth: '550px', textAlign: 'center', boxShadow: '0 10px 25px rgba(0,0,0,0.5)' }}>
+              <h2 style={{ marginTop: 0, color: '#2c3e50' }}>Algorithm Quiz Time!</h2>
+              <p style={{ fontSize: '16px', marginBottom: '20px', color: '#333' }}>
+                Based on the currently known distances on the map, which unvisited location should Dijkstra's Algorithm lock in and visit next?
+              </p>
+              
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', justifyContent: 'center', marginBottom: '15px' }}>
+                {algoState.quizOptions.map(opt => {
+                  const nodeName = nodes.find(n => n.id === opt.id).data.label;
+                  return (
+                    <button
+                      key={opt.id}
+                      onClick={() => {
+                        if (opt.id === algoState.correctAnswer) {
+                          runNextStep(true); 
+                        } else {
+                          setQuizFeedback(`Not quite! ${nodeName} has a distance of ${opt.dist}. Dijkstra always picks the node with the absolute lowest number.`);
+                        }
+                      }}
+                      style={{ padding: '12px 18px', background: '#3498db', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '15px' }}
+                    >
+                      {nodeName} ({opt.dist})
+                    </button>
+                  );
+                })}
+              </div>
+
+              <div style={{ minHeight: '24px', color: '#e74c3c', fontWeight: 'bold' }}>
+                {quizFeedback}
+              </div>
+            </div>
+          </div>
+        )}
+
         <ReactFlow 
           nodes={nodes} 
           edges={edges} 
@@ -267,8 +314,6 @@ export default function BoardScene() {
           zoomOnDoubleClick={false} 
           fitView
         >
-
-          {/* Top Status Banner */}
           {algoState.started && (
             <Panel position="top-center">
               <div style={{ 
@@ -284,18 +329,75 @@ export default function BoardScene() {
               </div>
             </Panel>
           )}
+
+          {algoState.phase === 'explaining' && (
+            <Panel position={explanationPosition} style={{ 
+              marginBottom: explanationPosition === 'bottom-center' ? '20px' : '0', 
+              marginTop: explanationPosition === 'top-center' ? '70px' : '0', 
+              width: '100%', 
+              display: 'flex', 
+              justifyContent: 'flex-start', // Changed from 'center' to 'flex-start'
+              paddingLeft: '20px',          // Added breathing room from the left edge
+              pointerEvents: 'none' 
+            }}>
+              
+              {!showExplanation ? (
+                <button 
+                  onClick={() => setShowExplanation(true)}
+                  style={{
+                    pointerEvents: 'auto',
+                    padding: '10px 20px',
+                    background: '#f39c12',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '25px',
+                    cursor: 'pointer',
+                    fontWeight: 'bold',
+                    fontSize: '15px',
+                    boxShadow: '0 4px 6px rgba(0,0,0,0.2)'
+                  }}
+                >
+                  See full explanation
+                </button>
+              ) : (
+                <div style={{ 
+                  pointerEvents: 'auto',
+                  background: '#fffcd1', 
+                  border: '2px solid #f1c40f', 
+                  padding: '15px 25px', 
+                  borderRadius: '8px', 
+                  width: '80%',
+                  maxWidth: '600px', 
+                  whiteSpace: 'pre-wrap', 
+                  boxShadow: '0 4px 15px rgba(0,0,0,0.1)', 
+                  color: '#2c3e50', 
+                  fontSize: '15px', 
+                  lineHeight: '1.5',
+                  position: 'relative'
+                }}>
+                  <button 
+                    onClick={() => setShowExplanation(false)}
+                    style={{ position: 'absolute', top: '10px', right: '15px', background: 'transparent', border: 'none', cursor: 'pointer', fontWeight: 'bold', color: '#e67e22', fontSize: '14px' }}
+                  >
+                    ✕ Close
+                  </button>
+                  <strong style={{ display: 'block', marginBottom: '10px' }}>Algorithm Log:</strong>
+                  {algoState.explanation}
+                </div>
+              )}
+            </Panel>
+          )}
           
-          {/* Controls Panel */}
           <Panel position="top-right">
             <button 
-              onClick={runNextStep}
-              disabled={algoState.finished}
+              onClick={() => runNextStep(false)}
+              disabled={algoState.finished || algoState.phase === 'quiz'}
               style={{ 
                 padding: '10px 20px', 
                 fontSize: '16px', 
-                cursor: algoState.finished ? 'not-allowed' : 'pointer', 
+                cursor: (algoState.finished || algoState.phase === 'quiz') ? 'not-allowed' : 'pointer', 
                 fontWeight: 'bold',
-                opacity: algoState.finished ? 0.5 : 1
+                opacity: (algoState.finished || algoState.phase === 'quiz') ? 0.5 : 1
               }}
             >
               {algoState.started ? 'Next Step' : 'Start Dijkstra'}
@@ -303,6 +405,18 @@ export default function BoardScene() {
           </Panel>
         </ReactFlow>
       </div>
+
+      <div style={{ width: '180px', backgroundColor: '#f8f9fa', color: '#2c3e50', padding: '15px', overflowY: 'auto', boxShadow: '-2px 0 10px rgba(0,0,0,0.1)', zIndex: 10 }}>
+        <h3 style={{ borderBottom: '2px solid #ddd', paddingBottom: '8px', margin: '0 0 10px 0', fontSize: '1em' }}>All Distances</h3>
+        <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+          {nodes.map(node => (
+            <li key={node.id} style={{ margin: '4px 0', padding: '4px 0', fontSize: '0.75em', borderBottom: '1px solid #eee' }}>
+              <strong>{node.data.label}:</strong> <span style={{ color: '#e74c3c' }}>{node.data.distance === null ? '?' : node.data.distance}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+
     </div>
   );
 }

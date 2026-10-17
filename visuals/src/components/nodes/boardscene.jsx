@@ -22,26 +22,26 @@ const initialNodes = [
   
   // RIGHT BRANCH (From J1)
   { id: 'j2', type: 'junction', position: { x: 555, y: 162.5 }, data: { label: 'Junction 2', distance: null } },
-  { id: 'h1', type: 'house', position: { x: 535, y: 50 }, data: { label: 'House 1', distance: null } },    // Above j2
-  { id: 'h2', type: 'house', position: { x: 700, y: 137 }, data: { label: 'House 2', distance: null } },  // Below j2
+  { id: 'h1', type: 'house', position: { x: 535, y: 50 }, data: { label: 'Cream House', distance: null } },    // Above j2
+  { id: 'h2', type: 'house', position: { x: 700, y: 137 }, data: { label: 'Red house', distance: null } },  // Below j2
   
   // DOWN BRANCH (From J1)
   { id: 'j3', type: 'junction', position: { x: 400, y: 412.5 }, data: { label: 'Junction 3', distance: null } },
-  { id: 'h7', type: 'house', position: { x: 380, y: 550 }, data: { label: 'House 7', distance: null } },  // Below j3
+  { id: 'h7', type: 'house', position: { x: 380, y: 550 }, data: { label: 'Orange House', distance: null } },  // Below j3
   
   // LEFT BRANCH (From J3)
   { id: 'j4', type: 'junction', position: { x: 155, y: 412.5 }, data: { label: 'Junction 4', distance: null } },
-  { id: 'h3', type: 'house', position: { x: 135, y: 250 }, data: { label: 'House 3', distance: null } },  // Above j4
-  { id: 'h4', type: 'house', position: { x: 135, y: 550 }, data: { label: 'House 4', distance: null } },  // Below j4
+  { id: 'h3', type: 'house', position: { x: 135, y: 250 }, data: { label: 'Yellow House', distance: null } },  // Above j4
+  { id: 'h4', type: 'house', position: { x: 135, y: 550 }, data: { label: 'Green House', distance: null } },  // Below j4
   
   // RIGHT BRANCH (From J3)
   { id: 'j5', type: 'junction', position: { x: 555, y: 412.5 }, data: { label: 'Junction 5', distance: null } },
-  { id: 'h5', type: 'house', position: { x: 535, y: 300 }, data: { label: 'House 5', distance: null } },  // Above j5
-  { id: 'h6', type: 'house', position: { x: 535, y: 550 }, data: { label: 'House 6', distance: null } },  // Below j5
+  { id: 'h5', type: 'house', position: { x: 535, y: 300 }, data: { label: 'Light Blue House', distance: null } },  // Above j5
+  { id: 'h6', type: 'house', position: { x: 535, y: 550 }, data: { label: 'Dark Blue House', distance: null } },  // Below j5
   
   // FAR RIGHT BRANCH (From J5)
   { id: 'j6', type: 'junction', position: { x: 855, y: 412.5 }, data: { label: 'Junction 6', distance: null } },
-  { id: 'h8', type: 'house', position: { x: 835, y: 250 }, data: { label: 'House 8', distance: null } },  // Above j6
+  { id: 'h8', type: 'house', position: { x: 835, y: 250 }, data: { label: 'Pink House', distance: null } },  // Above j6
 ];
 
 const initialEdges = [

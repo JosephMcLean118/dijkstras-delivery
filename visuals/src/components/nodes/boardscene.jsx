@@ -15,7 +15,7 @@ const nodeTypes = {
 // 1. Expanded Map: We've added a second junction and a third house
 const initialNodes = [
   // THE START
-  { id: 'start', type: 'pizza', position: { x: 357.5, y: -100 }, data: { label: "Luigi's Pizza", distance: null } },
+  { id: 'start', type: 'pizza', position: { x: 379.5, y: -100 }, data: { label: "Luigi's Pizza", distance: null } },
   
   // FIRST JUNCTION
   { id: 'j1', type: 'junction', position: { x: 400, y: 162.5 }, data: { label: 'Junction 1', distance: null } },
@@ -89,7 +89,7 @@ export default function BoardScene() {
   });
 
   const runNextStep = () => {
-    // STEP A: Initialization (Click 1)
+    // STEP A: Initialization
     if (!algoState.started) {
       const initDistances = {};
       initialNodes.forEach(n => {
@@ -105,11 +105,16 @@ export default function BoardScene() {
         currentVisitingName: "Initializing..."
       });
 
-      // Show edge weights and initial node distances
-      setEdges(eds => eds.map(e => ({ ...e, label: `${e.data.weight} mins` })));
+      // Reset all nodes and edges to default styles
       setNodes(nds => nds.map(n => ({
         ...n,
         data: { ...n.data, distance: n.id === 'start' ? 0 : '∞' }
+      })));
+      setEdges(eds => eds.map(e => ({ 
+        ...e, 
+        label: `${e.data.weight} mins`,
+        animated: false,
+        style: { stroke: '#999', strokeWidth: 2 } 
       })));
       return;
     }
@@ -117,7 +122,6 @@ export default function BoardScene() {
     // STEP B: Run Algorithm Iteration
     let { distances, unvisited, visited } = algoState;
     
-    // Find the unvisited node with the smallest distance
     let nextNodeId = null;
     let minDistance = Infinity;
     
@@ -128,40 +132,37 @@ export default function BoardScene() {
       }
     });
 
-    // If no reachable nodes are left, the algorithm is done
+    // If finished
     if (!nextNodeId || minDistance === Infinity) {
       setAlgoState(prev => ({ ...prev, finished: true, currentVisitingName: "Finished!" }));
+      setNodes(nds => nds.map(n => ({ ...n, style: { ...n.style, boxShadow: 'none', border: 'none' } })));
       
-      // Clear the highlighted border when finished
-      setNodes(nds => nds.map(n => ({ ...n, style: { ...n.style, boxShadow: 'none', border: '2px solid #555' } })));
+      // Clear all red edge highlights when done
+      setEdges(eds => eds.map(e => ({ 
+        ...e, 
+        animated: false, 
+        style: { stroke: '#999', strokeWidth: 2 } 
+      })));
       return;
     }
 
-    // Evaluate all outgoing roads from the node we are currently visiting
     const newDistances = { ...distances };
     const connectedEdges = edges.filter(e => e.source === nextNodeId);
     
     connectedEdges.forEach(edge => {
       const neighborId = edge.target;
       if (unvisited.includes(neighborId)) {
-        // Calculate new distance: current node's distance + road weight
         const newDist = newDistances[nextNodeId] + edge.data.weight;
-        
-        // If it's faster than the previously known route, update it
         if (newDist < newDistances[neighborId]) {
           newDistances[neighborId] = newDist;
         }
       }
     });
 
-    // Mark the current node as visited
     const newUnvisited = unvisited.filter(id => id !== nextNodeId);
     const newVisited = [...visited, nextNodeId];
-
-    // Get the name of the node for our UI Banner
     const visitingNodeObj = nodes.find(n => n.id === nextNodeId);
 
-    // Save the new mathematical state
     setAlgoState({
       started: true,
       finished: newUnvisited.length === 0,
@@ -171,7 +172,6 @@ export default function BoardScene() {
       currentVisitingName: visitingNodeObj.data.label
     });
 
-    // Update the visual map
     setNodes(nds => nds.map(n => {
       const isCurrent = n.id === nextNodeId;
       const isVisited = newVisited.includes(n.id);
@@ -182,13 +182,29 @@ export default function BoardScene() {
       return {
         ...n,
         data: { ...n.data, distance: displayDist },
-        // Add a glowing pink border to the node currently being processed
         style: {
           ...n.style,
-          border: isCurrent ? '3px solid #ff0072' : isVisited ? '2px solid #555' : '2px solid #ddd',
+          border: isCurrent ? '3px solid #ff0072' : isVisited ? '2px solid transparent' : 'none',
           boxShadow: isCurrent ? '0 0 15px #ff0072' : 'none',
           borderRadius: '5px',
           transition: 'all 0.3s ease'
+        }
+      };
+    }));
+
+    // Highlight the edges currently being checked
+    setEdges(eds => eds.map(e => {
+      // An edge is active if it leaves the current node and points to an unvisited node
+      const isActive = e.source === nextNodeId && newUnvisited.includes(e.target);
+      
+      return {
+        ...e,
+        animated: isActive, // Native React Flow prop that adds moving dots to the line
+        style: {
+          ...e.style,
+          stroke: isActive ? '#ff0000' : '#999', // Bright red if active, grey otherwise
+          strokeWidth: isActive ? 4 : 2,         // Thicker line when active
+          transition: 'stroke 0.3s ease, stroke-width 0.3s ease'
         }
       };
     }));
@@ -203,29 +219,33 @@ export default function BoardScene() {
         width: '200px', 
         backgroundColor: '#2c3e50', 
         color: '#ecf0f1', 
-        padding: '20px', 
+        padding: '15px', // Reduced from 20px
         overflowY: 'auto', 
         boxShadow: '2px 0 10px rgba(0,0,0,0.5)', 
         zIndex: 10 
       }}>
-        <h2 style={{ borderBottom: '2px solid #34495e', paddingBottom: '10px', marginTop: 0 }}>
+        <h2 style={{ 
+          borderBottom: '2px solid #34495e', 
+          paddingBottom: '8px', 
+          margin: '0 0 10px 0', // Reduced bottom margin
+          fontSize: '1.2em'     // Slightly smaller header
+        }}>
           Customer Distances
         </h2>
         
-        <ul style={{ listStyle: 'none', padding: 0 }}>
+        <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
           {nodes
-            .filter(n => n.type === 'house') // Only show houses in the list
+            .filter(n => n.type === 'house') 
             .map(house => (
               <li key={house.id} style={{ 
-                margin: '15px 0', 
-                padding: '15px', 
+                margin: '6px 0',      // Reduced from 15px
+                padding: '8px 12px',  // Reduced from 15px
                 backgroundColor: '#34495e', 
-                borderRadius: '8px',
-                // Highlight the house in the list if the algorithm is currently checking it
+                borderRadius: '6px',
                 borderLeft: house.id === algoState.currentVisitingName ? '4px solid #ff0072' : '4px solid transparent'
               }}>
-                <div style={{ fontWeight: 'bold', fontSize: '1.1em' }}>{house.data.label}</div>
-                <div style={{ marginTop: '5px', color: '#bdc3c7' }}>
+                <div style={{ fontWeight: 'bold', fontSize: '0.9em' }}>{house.data.label}</div> {/* Reduced from 1.1em */}
+                <div style={{ marginTop: '2px', color: '#bdc3c7', fontSize: '0.85em' }}>
                   Distance: {house.data.distance === null ? 'Unknown' : house.data.distance}
                 </div>
               </li>
@@ -234,7 +254,7 @@ export default function BoardScene() {
       </div>
 
       {/* RIGHT CANVAS: React Flow Map */}
-      <div style={{ flexGrow: 0.8, position: 'relative', backgroundColor: 'white' }}>
+      <div style={{ flexGrow: 0.6, position: 'relative', backgroundColor: 'white' }}>
         <ReactFlow 
           nodes={nodes} 
           edges={edges} 
@@ -242,6 +262,9 @@ export default function BoardScene() {
           onEdgesChange={onEdgesChange}
           nodeTypes={nodeTypes}
           nodesDraggable={false}
+          panOnDrag={false}       
+          zoomOnScroll={false}    
+          zoomOnDoubleClick={false} 
           fitView
         >
 

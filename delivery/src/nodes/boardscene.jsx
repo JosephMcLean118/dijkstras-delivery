@@ -53,7 +53,7 @@ export default function BoardScene() {
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
   const [quizFeedback, setQuizFeedback] = useState("");
-  // NEW: State to track if the explanation panel is open or collapsed
+  const [isQuizCorrect, setIsQuizCorrect] = useState(false);
   const [showExplanation, setShowExplanation] = useState(false);
 
   const [algoState, setAlgoState] = useState({
@@ -63,7 +63,7 @@ export default function BoardScene() {
     unvisited: [],
     visited: [],
     currentVisitingName: "",
-    currentVisitingId: "", // NEW: Track the specific node ID to determine layout placement
+    currentVisitingId: "",
     stepCount: 0,
     phase: 'idle',
     explanation: "",
@@ -104,7 +104,7 @@ export default function BoardScene() {
         style: { stroke: '#999', strokeWidth: 2 } 
       })));
       
-      setShowExplanation(false); // Reset toggle on start
+      setShowExplanation(false);
       return;
     }
 
@@ -129,14 +129,14 @@ export default function BoardScene() {
         ...prev, 
         finished: true, 
         currentVisitingName: "Finished!", 
-        currentVisitingId: prev.currentVisitingId, // Keep it where it was
+        currentVisitingId: prev.currentVisitingId, 
         phase: 'explaining',
         explanation: "Algorithm Complete! All reachable destinations have been mapped with their absolute shortest routes from the Pizza Place." 
       }));
       setNodes(nds => nds.map(n => ({ ...n, style: { ...n.style, boxShadow: 'none', border: 'none' } })));
       setEdges(eds => eds.map(e => ({ ...e, animated: false, style: { stroke: '#999', strokeWidth: 2 } })));
       
-      setShowExplanation(true); // Auto-show the final completion message
+      setShowExplanation(true);
       return;
     }
 
@@ -148,6 +148,7 @@ export default function BoardScene() {
         correctAnswer: nextNodeId
       }));
       setQuizFeedback("");
+      setIsQuizCorrect(false);
       return;
     }
 
@@ -232,11 +233,9 @@ export default function BoardScene() {
       };
     }));
     
-    // Collapse explanation on new step automatically
     setShowExplanation(false);
   };
 
-  // Determine dynamic placement for the explanation UI
   const topNodes = ['start', 'h1', 'h2', 'j1', 'j2'];
   const explanationPosition = topNodes.includes(algoState.currentVisitingId) ? 'bottom-center' : 'top-center';
 
@@ -280,14 +279,31 @@ export default function BoardScene() {
                   return (
                     <button
                       key={opt.id}
+                      disabled={isQuizCorrect}
                       onClick={() => {
                         if (opt.id === algoState.correctAnswer) {
-                          runNextStep(true); 
+                          setQuizFeedback(`Correct! ${nodeName} is the closest unvisited node.`);
+                          setIsQuizCorrect(true);
+                          
+                          setTimeout(() => {
+                            runNextStep(true); 
+                          }, 1500);
                         } else {
                           setQuizFeedback(`Not quite! ${nodeName} has a distance of ${opt.dist}. Dijkstra always picks the node with the absolute lowest number.`);
+                          setIsQuizCorrect(false);
                         }
                       }}
-                      style={{ padding: '12px 18px', background: '#3498db', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '15px' }}
+                      style={{ 
+                        padding: '12px 18px', 
+                        background: '#3498db', 
+                        color: 'white', 
+                        border: 'none', 
+                        borderRadius: '6px', 
+                        cursor: isQuizCorrect ? 'default' : 'pointer', 
+                        fontWeight: 'bold', 
+                        fontSize: '15px',
+                        opacity: isQuizCorrect ? 0.6 : 1
+                      }}
                     >
                       {nodeName}
                     </button>
@@ -295,7 +311,7 @@ export default function BoardScene() {
                 })}
               </div>
 
-              <div style={{ minHeight: '24px', color: '#e74c3c', fontWeight: 'bold' }}>
+              <div style={{ minHeight: '24px', color: isQuizCorrect ? '#27ae60' : '#e74c3c', fontWeight: 'bold' }}>
                 {quizFeedback}
               </div>
             </div>
@@ -336,8 +352,8 @@ export default function BoardScene() {
               marginTop: explanationPosition === 'top-center' ? '70px' : '0', 
               width: '100%', 
               display: 'flex', 
-              justifyContent: 'flex-start', // Changed from 'center' to 'flex-start'
-              paddingLeft: '20px',          // Added breathing room from the left edge
+              justifyContent: 'flex-start',
+              paddingLeft: '20px',
               pointerEvents: 'none' 
             }}>
               

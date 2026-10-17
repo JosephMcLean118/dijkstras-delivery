@@ -234,7 +234,7 @@ export default function BoardScene() {
       </div>
 
       {/* RIGHT CANVAS: React Flow Map */}
-      <div style={{ flexGrow: 0.8, position: 'relative' }}>
+      <div style={{ flexGrow: 0.8, position: 'relative', backgroundColor: 'white' }}>
         <ReactFlow 
           nodes={nodes} 
           edges={edges} 
@@ -244,8 +244,6 @@ export default function BoardScene() {
           nodesDraggable={false}
           fitView
         >
-          <Background />
-          <Controls />
 
           {/* Top Status Banner */}
           {algoState.started && (

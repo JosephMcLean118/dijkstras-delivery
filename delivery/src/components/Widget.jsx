@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 
-function Widget({title, details, to}) {
+function Widget({title, details, to, gameType}) {
     return(
         <>
         <div className='body'>
@@ -9,7 +9,7 @@ function Widget({title, details, to}) {
             <img src="https://picsum.photos/400/200" class="card-img-top" alt="..." />
             <div className="card-body">
                 <p className="card-text">{details}</p>
-                <Link to={to} className="btn btn-primary">Start</Link>
+                <Link to={to} className="btn btn-primary">{gameType}</Link>
             </div>
             </div>
         </div>

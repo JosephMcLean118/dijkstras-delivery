@@ -42,8 +42,6 @@ const initialNodes = [
   // FAR RIGHT BRANCH (From J5)
   { id: 'j6', type: 'junction', position: { x: 855, y: 412.5 }, data: { label: 'Junction 6', distance: null } },
   { id: 'h8', type: 'house', position: { x: 835, y: 250 }, data: { label: 'House 8', distance: null } },  // Above j6
-  { id: 'h9', type: 'house', position: { x: 835, y: 550 }, data: { label: 'House 9', distance: null } },  // Below j6
-  { id: 'h10', type: 'house', position: { x: 1000, y: 387 }, data: { label: 'House 10', distance: null } } // Left of j6
 ];
 
 const initialEdges = [
@@ -74,9 +72,6 @@ const initialEdges = [
   
   // From Junction 6
   { id: 'e-j6-h8', source: 'j6', sourceHandle: 'top', target: 'h8', targetHandle: 'bottom', type: 'step', data: { weight: 2 } },
-  { id: 'e-j6-h9', source: 'j6', sourceHandle: 'bottom', target: 'h9', targetHandle: 'top', type: 'step', data: { weight: 4 } },
-  // For House 10 (Left of J6), we use the left handle of J6 and the right handle of H10
-  { id: 'e-j6-h10', source: 'j6', sourceHandle: 'right', target: 'h10', targetHandle: 'left', type: 'step', data: { weight: 3 } }
 ];
 
 export default function BoardScene() {
@@ -200,53 +195,93 @@ export default function BoardScene() {
   };
 
   return (
-    <div style={{ width: '100vw', height: '100vh' }}>
-      <ReactFlow 
-        nodes={nodes} 
-        edges={edges} 
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        nodeTypes={nodeTypes}
-        nodesDraggable={false}
-        fitView
-      >
-        <Background />
-        <Controls />
-
-        {/* 4. Top Banner: Shows the Currently Visiting Node */}
-        {algoState.started && (
-          <Panel position="top-center">
-            <div style={{ 
-              background: algoState.finished ? '#228B22' : '#333', 
-              color: 'white', 
-              padding: '10px 20px', 
-              borderRadius: '8px', 
-              fontSize: '18px', 
-              fontWeight: 'bold',
-              boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
-            }}>
-              {algoState.finished ? "Algorithm Complete!" : `Currently Visiting: ${algoState.currentVisitingName}`}
-            </div>
-          </Panel>
-        )}
+    // Change to a Flex container to put the sidebar and map side-by-side
+    <div style={{ display: 'flex', width: '100vw', height: '100vh', backgroundColor: '#e0e0e0' }}>
+      
+      {/* LEFT SIDEBAR: Delivery Distances */}
+      <div style={{ 
+        width: '200px', 
+        backgroundColor: '#2c3e50', 
+        color: '#ecf0f1', 
+        padding: '20px', 
+        overflowY: 'auto', 
+        boxShadow: '2px 0 10px rgba(0,0,0,0.5)', 
+        zIndex: 10 
+      }}>
+        <h2 style={{ borderBottom: '2px solid #34495e', paddingBottom: '10px', marginTop: 0 }}>
+          Customer Distances
+        </h2>
         
-        {/* 5. Next Step Button */}
-        <Panel position="top-left">
-          <button 
-            onClick={runNextStep}
-            disabled={algoState.finished}
-            style={{ 
-              padding: '10px 20px', 
-              fontSize: '16px', 
-              cursor: algoState.finished ? 'not-allowed' : 'pointer', 
-              fontWeight: 'bold',
-              opacity: algoState.finished ? 0.5 : 1
-            }}
-          >
-            {algoState.started ? 'Next Step' : 'Start Dijkstra'}
-          </button>
-        </Panel>
-      </ReactFlow>
+        <ul style={{ listStyle: 'none', padding: 0 }}>
+          {nodes
+            .filter(n => n.type === 'house') // Only show houses in the list
+            .map(house => (
+              <li key={house.id} style={{ 
+                margin: '15px 0', 
+                padding: '15px', 
+                backgroundColor: '#34495e', 
+                borderRadius: '8px',
+                // Highlight the house in the list if the algorithm is currently checking it
+                borderLeft: house.id === algoState.currentVisitingName ? '4px solid #ff0072' : '4px solid transparent'
+              }}>
+                <div style={{ fontWeight: 'bold', fontSize: '1.1em' }}>{house.data.label}</div>
+                <div style={{ marginTop: '5px', color: '#bdc3c7' }}>
+                  Distance: {house.data.distance === null ? 'Unknown' : house.data.distance}
+                </div>
+              </li>
+          ))}
+        </ul>
+      </div>
+
+      {/* RIGHT CANVAS: React Flow Map */}
+      <div style={{ flexGrow: 0.8, position: 'relative' }}>
+        <ReactFlow 
+          nodes={nodes} 
+          edges={edges} 
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
+          nodeTypes={nodeTypes}
+          nodesDraggable={false}
+          fitView
+        >
+          <Background />
+          <Controls />
+
+          {/* Top Status Banner */}
+          {algoState.started && (
+            <Panel position="top-center">
+              <div style={{ 
+                background: algoState.finished ? '#27ae60' : '#333', 
+                color: 'white', 
+                padding: '10px 20px', 
+                borderRadius: '8px', 
+                fontSize: '18px', 
+                fontWeight: 'bold',
+                boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+              }}>
+                {algoState.finished ? "Algorithm Complete!" : `Currently Visiting: ${algoState.currentVisitingName}`}
+              </div>
+            </Panel>
+          )}
+          
+          {/* Controls Panel */}
+          <Panel position="top-right">
+            <button 
+              onClick={runNextStep}
+              disabled={algoState.finished}
+              style={{ 
+                padding: '10px 20px', 
+                fontSize: '16px', 
+                cursor: algoState.finished ? 'not-allowed' : 'pointer', 
+                fontWeight: 'bold',
+                opacity: algoState.finished ? 0.5 : 1
+              }}
+            >
+              {algoState.started ? 'Next Step' : 'Start Dijkstra'}
+            </button>
+          </Panel>
+        </ReactFlow>
+      </div>
     </div>
   );
 }

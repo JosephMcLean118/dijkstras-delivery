@@ -14,7 +14,7 @@ const nodeTypes = {
 
 // Map Data
 const initialNodes = [
-  { id: 'start', type: 'pizza', position: { x: 379.5, y: -100 }, data: { label: "Luigi's Pizza", distance: null } },
+  { id: 'start', type: 'pizza', position: { x: 379.5, y: -100 }, data: { label: "Pizza Place", distance: null } },
   { id: 'j1', type: 'junction', position: { x: 400, y: 162.5 }, data: { label: 'Junction 1', distance: null } },
   { id: 'j2', type: 'junction', position: { x: 555, y: 162.5 }, data: { label: 'Junction 2', distance: null } },
   { id: 'h1', type: 'house', position: { x: 535, y: 50 }, data: { label: 'Cream House', distance: null } },
@@ -90,7 +90,7 @@ export default function BoardScene() {
         currentVisitingId: "start",
         stepCount: 0,
         phase: 'explaining',
-        explanation: "Initialization: We begin at Luigi's Pizza. We set its distance to 0. All other nodes are temporarily set to Infinity (∞) because we haven't discovered routes to them yet."
+        explanation: "Initialization: We begin at the Pizza Place. We set its distance to 0. All other nodes are temporarily set to Infinity (∞) because we haven't discovered routes to them yet."
       });
 
       setNodes(nds => nds.map(n => ({

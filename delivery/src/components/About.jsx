@@ -1,7 +1,10 @@
+
+
+
+
 import { useState } from 'react';
 
 function About() {
-  // S
   const [isOpen, setIsOpen] = useState(false);
 
   const contentBlocks = [
@@ -12,7 +15,7 @@ function About() {
       text: "Dijkstra's Algorithm was developed by Edsger Dijkstra and published in 1959.",
     },
     {
-      text: "The algorithm, like many other search algorithms intends to find the shortest path from 1 node to another. In essence, its process is picking the closest unvisited vertex and then visiting each unvisited neighbor node and and calculating the distance through them, updating their distance if the distance between them is smaller than the nodes current distance."
+      text: "The algorithm, like many other search algorithms intends to find the shortest path from 1 node to another. In essence, its process is picking the closest unvisited vertex and then visiting each unvisited neighbor node and calculating the distance through them, updating their distance if the distance between them is smaller than the nodes current distance."
     },
     {
       text: "This game has been designed to teach the fundamentals of the Dijkstra's algorithm through fun, challenging repetition with the goal of completing a given pizza route in as little time and fuel as possible.",
@@ -22,27 +25,24 @@ function About() {
   return (
     <div className="about-dropdown-container">
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;700&display=swap');
 
         .about-dropdown-container {
           font-family: 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
           color: #1a1a1a;
-          background-color: white;
+          /* MATCH: Changed from white to Cream to match Nav Bar */
+          background-color: #fdf5e6; 
           margin: 20px;
-          /* CHANGED: Rounded corners removed */
-          border-radius: 0; 
+          border-radius: 4px; 
           overflow: hidden;
-          border: 1px solid #dee2e6;
+          border: 2px solid #4a3728; 
         }
 
-        
-    
         .about-page-wrapper .header-bar {
           display: flex;
           align-items: center;
-          /* CHANGED: Pure white background */
-          background-color: #ffffff; 
-          border-bottom: 1px solid #dee2e6;
+          background-color: #fdf5e6; 
+          border-bottom: 2px solid #4a3728;
           padding: 1rem 2rem;
           cursor: pointer;
           transition: background-color 0.2s ease;
@@ -50,27 +50,29 @@ function About() {
         }
 
         .about-page-wrapper .header-bar:hover {
-          background-color: #fcfcfc;
+          background-color: #f5e6ca;
         }
 
         .about-page-wrapper .info-icon {
-          font-size: 24px;
-          color: #6c757d;
-          margin-right: 12px;
+          font-size: 20px;
+          color: #6b4f3b;
+          margin-right: 15px;
         }
 
         .about-page-wrapper .header-title {
-          /* CHANGED: h4 size (approx 1.25rem - 1.5rem) */
-          font-size: 1.35rem; 
+          font-family: 'Press Start 2P', cursive;
+          font-size: 1rem; 
           font-weight: 700;
           margin: 0;
+          color: #5d7a32; 
+          text-transform: uppercase;
         }
 
-        
-    
         .about-collapse-content {
           display: ${isOpen ? 'block' : 'none'};
           animation: fadeIn 0.3s ease-in-out;
+          /* MATCH: Changed from white to Cream to match Nav Bar */
+          background-color: #fdf5e6; 
         }
 
         @keyframes fadeIn {
@@ -78,7 +80,6 @@ function About() {
           to { opacity: 1; transform: translateY(0); }
         }
 
-        
         .about-page-wrapper .about-container {
           max-width: 1200px;
           margin: 0 auto;
@@ -86,13 +87,13 @@ function About() {
         }
 
         .about-page-wrapper .content-column {
-          border-left: 4px solid #007bff; 
-          padding-left: 2.5rem;         
+          border-left: 4px solid #d2b48c; 
+          padding-left: 2rem;         
           margin-left: 1rem;            
         }
         
         .about-page-wrapper .content-block {
-          margin-bottom: 2.5rem;
+          margin-bottom: 1.5rem;
         }
 
         .about-page-wrapper .content-block:last-child {
@@ -101,8 +102,8 @@ function About() {
         
         .about-page-wrapper .description-text {
           font-size: 1rem;
-          line-height: 1.5;
-          color: #1a1a1a;
+          line-height: 1.6;
+          color: #333;
           margin: 0;
         }
       `}</style>
@@ -114,7 +115,7 @@ function About() {
         >
           <span className="info-icon">ⓘ</span>
           <h1 className="header-title">About</h1>
-          <span style={{ marginLeft: 'auto', fontSize: '0.8rem', color: '#6c757d' }}>
+          <span style={{ marginLeft: 'auto', fontSize: '0.8rem', color: '#6b4f3b' }}>
             {isOpen ? '▲' : '▼'}
           </span>
         </div>

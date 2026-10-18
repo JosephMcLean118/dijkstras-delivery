@@ -19,10 +19,10 @@ import JunctionNode from './junctionnode';
 /*  Settings                                                           */
 /* ------------------------------------------------------------------ */
 
-const BOARD_HEIGHT = '100vh';  // whole component height
-const DOCK_HEIGHT = 240;       // height of the question panel under the map (px)
-const WRONG_PENALTY = 5;       // seconds added to your time for each wrong answer
-const FUEL_TANK = 20;          // 1 fuel unit per minute of road
+const BOARD_HEIGHT = '100vh';  
+const DOCK_HEIGHT = 240;       
+const WRONG_PENALTY = 5;       
+const FUEL_TANK = 20;          
 const BEST_KEY = 'dijkstra-test-best-time';
 
 const INK = '#3b2a1a';
@@ -30,17 +30,29 @@ const PARCHMENT = '#fdf1c7';
 const HIGHLIGHT = '#ff4d6d';
 const GOLD = '#ffd166';
 
-const GRASS_SVG = `<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32' shape-rendering='crispEdges'>
-<rect width='32' height='32' fill='#62b04c'/>
-<rect x='4' y='6' width='2' height='2' fill='#55a041'/>
-<rect x='20' y='4' width='2' height='2' fill='#72c05a'/>
-<rect x='12' y='16' width='2' height='2' fill='#55a041'/>
-<rect x='26' y='20' width='2' height='2' fill='#72c05a'/>
-<rect x='6' y='26' width='2' height='2' fill='#72c05a'/>
-<rect x='16' y='28' width='2' height='2' fill='#55a041'/>
-<rect x='28' y='10' width='2' height='2' fill='#55a041'/>
-<rect x='14' y='6' width='2' height='2' fill='#72c05a'/>
-</svg>`;
+// RANDOM GRASS GENERATOR
+const generateGrassSVG = () => {
+  const size = 64; // Larger tile to reduce obvious repetition
+  const baseColor = '#62b04c';
+  const darkColor = '#55a041';
+  const lightColor = '#72c05a';
+  let rects = '';
+  
+  // Randomly place about 80 pixels of varying shades
+  for (let i = 0; i < 80; i++) {
+    const x = Math.floor(Math.random() * size);
+    const y = Math.floor(Math.random() * size);
+    const color = Math.random() > 0.5 ? darkColor : lightColor;
+    rects += `<rect x='${x}' y='${y}' width='2' height='2' fill='${color}'/>`;
+  }
+  
+  return `<svg xmlns='http://www.w3.org/2000/svg' width='${size}' height='${size}' shape-rendering='crispEdges'>
+    <rect width='${size}' height='${size}' fill='${baseColor}'/>
+    ${rects}
+  </svg>`;
+};
+
+const GRASS_SVG = generateGrassSVG();
 const GRASS = `url("data:image/svg+xml,${encodeURIComponent(GRASS_SVG)}")`;
 
 const WOOD = {
@@ -284,12 +296,6 @@ const emptyAlgo = () => ({
   currentVisitingId: '',
 });
 
-/**
- * Builds the question for the next step.
- *  - "next":   which unvisited location does Dijkstra visit next?
- *  - "update": after visiting a node, what is a neighbour's new distance?
- * Every second step uses an "update" question when the step improves a neighbour.
- */
 function buildQuestion(state, edgeList) {
   const { distances, unvisited, visited, stepCount } = state;
   const reachable = unvisited.filter((id) => distances[id] < Infinity);
@@ -376,6 +382,27 @@ function buildQuestion(state, edgeList) {
 /* ------------------------------------------------------------------ */
 
 export default function PracticeScene() {
+  // AUDIO LOGIC
+  const audioRef = useRef(null);
+
+  useEffect(() => {
+    audioRef.current = new Audio("/pizzatime.mp3");
+    audioRef.current.volume = 0.5;
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+    };
+  }, []);
+
+  function startSound() {
+    if (audioRef.current) {
+      audioRef.current.currentTime = 0;
+      audioRef.current.play();
+    }
+  }
+
   const [nodes, setNodes, onNodesChange] = useNodesState([...decorNodes, ...initialNodes]);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
@@ -402,8 +429,6 @@ export default function PracticeScene() {
 
   const timeoutRef = useRef(null);
 
-  /* ---------- timer: runs while a question is open, pauses while the answer is explained ---------- */
-
   const timerOn = algoState.started && !algoState.finished && !locked;
   useEffect(() => {
     if (!timerOn) return undefined;
@@ -428,10 +453,7 @@ export default function PracticeScene() {
         /* storage unavailable: ignore */
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [algoState.finished]);
-
-  /* ---------- route to the chosen house + fuel ---------- */
 
   const pathIds = useMemo(() => {
     if (!algoState.visited.includes(targetId)) return [];
@@ -490,12 +512,9 @@ export default function PracticeScene() {
   const fuelPct = (fuelLeft / FUEL_TANK) * 100;
   const fuelColor = fuelPct > 50 ? '#3fa34d' : fuelPct > 25 ? '#f2b705' : '#e8553d';
 
-  /* ---------- algorithm ---------- */
-
   const setRoads = (patch) =>
     setEdges((eds) => eds.map((e) => ({ ...e, data: { ...e.data, ...patch(e) } })));
 
-  // Runs one real Dijkstra step on the chosen node and updates the map
   const applyStep = (state, chosenId) => {
     const { distances, unvisited, visited, prev } = state;
     const newDistances = { ...distances };
@@ -555,6 +574,7 @@ export default function PracticeScene() {
 
   const startTest = () => {
     clearTimeout(timeoutRef.current);
+    startSound(); // TRIGGER MUSIC HERE
 
     const distances = {};
     initialNodes.forEach((n) => {
@@ -613,8 +633,6 @@ export default function PracticeScene() {
 
   const labelOf = (id) => nodes.find((n) => n.id === id)?.data.label;
   const listNodes = nodes.filter((n) => n.type !== 'tree');
-
-  /* ---------- render ---------- */
 
   return (
     <div
@@ -711,7 +729,7 @@ export default function PracticeScene() {
             position: 'relative',
             backgroundColor: '#62b04c',
             backgroundImage: GRASS,
-            backgroundSize: '96px 96px',
+            backgroundSize: '128px 128px', // Increased to match 64px tile scale
             imageRendering: 'pixelated',
           }}
         >
@@ -922,3 +940,4 @@ export default function PracticeScene() {
     </div>
   );
 }
+

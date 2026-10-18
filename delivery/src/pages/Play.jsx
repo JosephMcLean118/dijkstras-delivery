@@ -20,7 +20,7 @@ export default function Play() {
             </p>
           </div>
         </div>
-        <button class="btn btn-primary mt-3 rounded-pill" type="submit">Begin Delivery</button>
+    
 
         <div className="card bg-white mt-3" style={{ height: '500px', width: '100%' }}>
           <BoardScene />

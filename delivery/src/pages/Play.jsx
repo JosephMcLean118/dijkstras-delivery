@@ -1,4 +1,4 @@
-import BoardScene from '../nodes/boardscene';
+import BoardSceneGame from '../nodes/boardscenegame';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 export default function Play() { 
@@ -23,7 +23,7 @@ export default function Play() {
         <button class="btn btn-primary mt-3 rounded-pill" type="submit">Begin Delivery</button>
 
         <div className="card bg-white mt-3" style={{ height: '500px', width: '100%' }}>
-          <BoardScene />
+          <BoardSceneGame />
         </div>
       </div>
     </div>

@@ -12,7 +12,6 @@ const nodeTypes = {
   junction: JunctionNode, 
 };
 
-// Map Data
 const initialNodes = [
   { id: 'start', type: 'pizza', position: { x: 379.5, y: -100 }, data: { label: "Luigi's Pizza", distance: null } },
   { id: 'j1', type: 'junction', position: { x: 400, y: 162.5 }, data: { label: 'Junction 1', distance: null } },
@@ -69,7 +68,7 @@ export default function BoardScene() {
     explanation: "",
     quizOptions: [],
     correctAnswer: null,
-    correctDistance: null // NEW: Tracks the absolute minimum distance for tie-breaking
+    correctDistance: null 
   });
 
   const runNextStep = (overrideQuiz = false) => {
@@ -97,7 +96,6 @@ export default function BoardScene() {
         correctDistance: null
       });
 
-      // Correctly formatted initialization state (no variables referenced)
       setNodes(nds => nds.map(n => ({
         ...n,
         data: { ...n.data, distance: n.id === 'start' ? 0 : '∞' }
@@ -143,7 +141,6 @@ export default function BoardScene() {
       return;
     }
 
-    // Trigger quiz every time there is more than 1 option available
     if (!overrideQuiz && reachableUnvisited.length > 1) {
       setAlgoState(prev => ({
         ...prev,
@@ -204,7 +201,7 @@ export default function BoardScene() {
       explanation: explanationText
     });
 
-    // The glow-removal fix belongs here, safely inside the scope where nextNodeId and newVisited exist
+
     setNodes(nds => nds.map(n => {
       const isCurrent = n.id === nextNodeId;
       const isVisited = newVisited.includes(n.id);
@@ -218,7 +215,7 @@ export default function BoardScene() {
         style: {
           ...n.style,
           border: isCurrent ? '3px solid #ff0072' : isVisited ? '2px solid transparent' : 'none',
-          boxShadow: 'none', // Removed the pink glowing effect
+          boxShadow: 'none',
           borderRadius: '5px',
           transition: 'all 0.3s ease'
         }
@@ -267,7 +264,7 @@ export default function BoardScene() {
         </div>
       </div>
 
-      <div style={{ flexGrow: 0.85, position: 'relative', backgroundColor: 'white' }}>
+      <div style={{ flexGrow: 1.0, position: 'relative', backgroundColor: 'white' }}>
         
         {algoState.phase === 'quiz' && (
           <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.7)', zIndex: 1000, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
@@ -298,7 +295,7 @@ export default function BoardScene() {
                           
                           setTimeout(() => {
                             runNextStep(true); 
-                          }, 3000); // Slightly longer timeout to allow time to read the longer message
+                          }, 4000); 
                         } else {
                           setQuizFeedback(`Not quite! ${nodeName} has a distance of ${opt.dist}. Dijkstra always picks the node with the absolute lowest number.`);
                           setIsQuizCorrect(false);
@@ -322,7 +319,6 @@ export default function BoardScene() {
                 })}
               </div>
 
-              {/* Increased minHeight to prevent layout shifting with the longer tie-breaker message */}
               <div style={{ minHeight: '48px', color: isQuizCorrect ? '#27ae60' : '#e74c3c', fontWeight: 'bold' }}>
                 {quizFeedback}
               </div>
@@ -359,7 +355,6 @@ export default function BoardScene() {
             </Panel>
           )}
 
-          {/* Dynamic Explanation Panel */}
           {algoState.phase === 'explaining' && showExplanation && (
             <Panel position={explanationPosition} style={{ 
               marginBottom: explanationPosition === 'bottom-center' ? '20px' : '0', 

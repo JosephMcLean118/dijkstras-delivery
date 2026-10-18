@@ -265,7 +265,7 @@ export default function BoardScene() {
         </div>
       </div>
 
-      <div style={{ flexGrow: 0.85, position: 'relative', backgroundColor: 'white' }}>
+      <div style={{ flexGrow: 1.0, position: 'relative', backgroundColor: 'white' }}>
         
         {algoState.phase === 'quiz' && (
           <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.7)', zIndex: 1000, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>

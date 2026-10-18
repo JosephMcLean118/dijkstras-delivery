@@ -13,8 +13,6 @@ function Body() {
                     to="/practice"
                     gameType="Tutorial"
                     image={practice}
-                    
-
                 />
                 <Widget
                     title="Play"

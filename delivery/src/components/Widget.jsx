@@ -1,12 +1,10 @@
 import { Link } from "react-router-dom";
-import PizzPic3 from "../../src/components/PizzPic3.png";
-import practice from "../../src/components/practice.png";
 
 function Widget({title, details, to, gameType, image}) {
     return(
         <>
         <div className='body'>
-            <h4 className="card-title" style={{ marginBottom: "1vw", minHeight: '3rem' }}>
+            <h4 className="card-title" style={{ marginBottom: "0px", minHeight: '3rem' }}>
                 {title}
             </h4>
             
@@ -14,18 +12,17 @@ function Widget({title, details, to, gameType, image}) {
            
               <img 
                 src={image} 
-                className="card-img-top mt-3" 
+                className="card-img-top mt-1" 
                 alt="..." 
-                style={{ width: '100%', height: '500px', objectFit: 'cover'}} 
+                style={{ width: '100%', height: '414px', objectFit: 'cover', marginBottom:"0px"}} 
               />
               <div className="card-body">
                 <p className="card-text">{details}</p>
-                <Link to={to} className="btn btn-primary">{gameType}</Link>
+                <Link to={to} className="other-hover-grow py-2 px-4 card text-bg-primary text-decoration-none">{gameType}</Link>
               </div>
             </div>
         </div>
         </>
-
     );
 }
 export default Widget;

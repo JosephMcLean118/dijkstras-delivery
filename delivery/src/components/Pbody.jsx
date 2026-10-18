@@ -29,7 +29,7 @@ function Pbody() {
         <div className="m-4">
             <div className="d-flex gap-2 mb-3">
                 <button
-                    className={`btn ${tab === "tutorial" ? "btn-primary" : "btn-outline-primary"}`}
+                    className="other-hover-grow py-2 px-4 card text-bg-primary text-decoration-none"
                     onClick={goTutorial}
                 >
                     Play Pizza Theme

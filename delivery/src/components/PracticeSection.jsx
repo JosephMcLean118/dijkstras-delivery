@@ -1,4 +1,4 @@
-import placeholder from "../../public/placeholder.png";
+import placeholder from "../assets/placeholder.png";
 
 function PracticeSection() {
     return (

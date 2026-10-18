@@ -125,3 +125,17 @@ h1[style*="Inter"], h2[style*="Inter"], h3[style*="Inter"],
 h4[style*="Inter"], h5[style*="Inter"], h6[style*="Inter"] {
   font-family: 'Press Start 2P', monospace !important;
 }
+
+/* Hide scrollbar in Chrome, Safari and Edge */
+::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar in Firefox and other browsers */
+html {
+  scrollbar-width: none;
+}
+
+body {
+  margin: 0;
+}

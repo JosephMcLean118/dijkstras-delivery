@@ -1,28 +1,127 @@
-body {
-  background-color: #eaeaea;
-}
-.hover-grow {
-  display: inline-block;
-  transition: transform 0.2s ease;
+/* Pixel-town theme for the whole site. Import this AFTER bootstrap's CSS. */
+
+:root {
+  --ink: #3b2a1a;
+  --parchment: #fdf1c7;
+  --pizza-red: #e8553d;
+
+  /* Bootstrap hooks */
+  --bs-body-font-family: 'VT323', monospace;
+  --bs-body-font-size: 1.375rem;
+  --bs-body-line-height: 1.2;
+  --bs-body-color: #3b2a1a;
+  --bs-body-color-rgb: 59, 42, 26;
+  --bs-link-color-rgb: 179, 54, 31;
+  --bs-link-hover-color-rgb: 232, 85, 61;
+
+  /* Grass tiling behind the whole site */
+  background-color: #62b04c;
+  background-image: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='32'%20height='32'%20shape-rendering='crispEdges'%3E%3Crect%20width='32'%20height='32'%20fill='%2362b04c'/%3E%3Crect%20x='4'%20y='6'%20width='2'%20height='2'%20fill='%2355a041'/%3E%3Crect%20x='20'%20y='4'%20width='2'%20height='2'%20fill='%2372c05a'/%3E%3Crect%20x='12'%20y='16'%20width='2'%20height='2'%20fill='%2355a041'/%3E%3Crect%20x='26'%20y='20'%20width='2'%20height='2'%20fill='%2372c05a'/%3E%3Crect%20x='6'%20y='26'%20width='2'%20height='2'%20fill='%2372c05a'/%3E%3Crect%20x='16'%20y='28'%20width='2'%20height='2'%20fill='%2355a041'/%3E%3Crect%20x='28'%20y='10'%20width='2'%20height='2'%20fill='%2355a041'/%3E%3Crect%20x='14'%20y='6'%20width='2'%20height='2'%20fill='%2372c05a'/%3E%3C/svg%3E");
+  background-size: 96px 96px;
+  image-rendering: pixelated;
 }
 
-.hover-grow:hover {
-  transform: scale(1.01);
+body { background-color: transparent; }
+
+/* the chunky look is only for the grass, not for every picture */
+img, canvas, video { image-rendering: auto; }
+
+::selection { background: var(--pizza-red); color: #fff; }
+
+/* ---------- Headings: pixel font, parchment on grass, ink on cards ---------- */
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Press Start 2P', monospace;
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--parchment);
+  text-shadow: 2px 2px 0 var(--ink);
+}
+h1 { font-size: 18px; }
+h2 { font-size: 16px; }
+h3 { font-size: 14px; }
+h4 { font-size: 13px; }
+h5 { font-size: 11px; }
+h6 { font-size: 10px; }
+
+/* the pixel font only has one weight, so don't fake a bold one */
+:is(h1, h2, h3, h4, h5, h6):is(.fw-bold, .fw-semibold, .fw-bolder) { font-weight: 400 !important; }
+
+.card :is(h1, h2, h3, h4, h5, h6) {
+  color: var(--ink);
+  text-shadow: none;
 }
 
-.hover-grow-left {
-  transform-origin: left center;
+.header h1 { font-size: 14px !important; }
+
+b, strong {
+  font-weight: 400;
+  color: #b3361f;
 }
 
-.other-hover-grow {
-  display: inline-block;
-  transition: transform 0.2s ease;
+/* ---------- Cards become parchment signs ---------- */
+
+.card {
+  --bs-card-bg: var(--parchment);
+  --bs-card-color: var(--ink);
+  --bs-card-border-color: var(--ink);
+  --bs-card-border-width: 4px;
+  --bs-card-border-radius: 0;
+  --bs-card-inner-border-radius: 0;
+  --bs-card-cap-bg: var(--parchment);
+  border-radius: 0;
+  box-shadow: 4px 4px 0 var(--ink);
 }
 
-.other-hover-grow:hover {
-  transform: scale(1.1);
+/* cards that used border-0 / bg-white still get the sign look */
+.card.border-0 { border: 4px solid var(--ink) !important; }
+.card.bg-white,
+.card.text-bg-white { background-color: var(--parchment) !important; }
+
+/* a card that only wraps the game board lets the board's own frame show */
+.card:has(> .pz-board) {
+  border: 0 !important;
+  box-shadow: none;
+  background-color: transparent !important;
 }
 
-.other-hover-grow-left {
-  transform-origin: left center;
+.card-img-top {
+  border-radius: 0;
+  border-bottom: 4px solid var(--ink);
+}
+
+.rounded, .rounded-1, .rounded-2, .rounded-3, .rounded-4, .rounded-5, .rounded-pill {
+  border-radius: 0 !important;
+}
+
+/* ---------- Buttons (the Play / Tutorial links and buttons) ---------- */
+
+.text-bg-primary,
+.btn-primary {
+  background-color: var(--pizza-red) !important;
+  color: #fff !important;
+  border: 4px solid var(--ink) !important;
+  border-radius: 0 !important;
+  box-shadow: 4px 4px 0 var(--ink);
+  font-family: 'Press Start 2P', monospace;
+  font-size: 10px;
+  line-height: 1.4;
+  text-align: center;
+  text-shadow: none;
+}
+.text-bg-primary:hover,
+.btn-primary:hover {
+  background-color: #ff6a50 !important;
+  color: #fff !important;
+}
+
+/* plain text links in the header */
+.header a.text-black { color: var(--ink) !important; }
+
+/* ---------- Safety net: inline Inter fonts left in the JSX ---------- */
+
+[style*="Inter"] { font-family: 'VT323', monospace !important; }
+h1[style*="Inter"], h2[style*="Inter"], h3[style*="Inter"],
+h4[style*="Inter"], h5[style*="Inter"], h6[style*="Inter"] {
+  font-family: 'Press Start 2P', monospace !important;
 }

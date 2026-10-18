@@ -16,13 +16,13 @@ export default function Play() {
               little time - and fuel, possible.
             </p>
             <p className="mb-0 pb-1">
-              Make sure you are using the quickest possible routes! Wouldn’t want to keep your clientele waiting.
+              Make sure you are using the <b>quickest</b> possible routes! Wouldn’t want to keep your clientele waiting.
             </p>
           </div>
         </div>
     
 
-        <div className="card bg-white mt-3" style={{ height: '500px', width: '100%' }}>
+        <div className="card bg-white mt-3" style={{width: '100%' }}>
           <BoardSceneGame />
         </div>
       </div>

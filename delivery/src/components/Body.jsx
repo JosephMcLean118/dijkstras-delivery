@@ -1,6 +1,6 @@
 import Widget from "./Widget";
-import PizzPic3 from "../../src/components/PizzPic3.png";
-import practice from "../../src/components/practice.png";
+import PizzPic3 from "./PizzPic3.png";
+import practice from "./practice.png";
 
 function Body() {
 

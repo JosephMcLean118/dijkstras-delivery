@@ -16,29 +16,25 @@ import HouseNode from './housenode';
 import JunctionNode from './junctionnode';
 
 /* ------------------------------------------------------------------ */
-/*  Settings                                                           */
+/*  Look and feel                                                      */
 /* ------------------------------------------------------------------ */
 
-const BOARD_HEIGHT = '100vh';  
-const DOCK_HEIGHT = 240;       
-const WRONG_PENALTY = 5;       
-const FUEL_TANK = 20;          
-const BEST_KEY = 'dijkstra-test-best-time';
+const BOARD_HEIGHT = '100vh';
 
-const INK = '#3b2a1a';
-const PARCHMENT = '#fdf1c7';
-const HIGHLIGHT = '#ff4d6d';
-const GOLD = '#ffd166';
+const INK = '#3b2a1a';       
+const PARCHMENT = '#fdf1c7'; 
+const HIGHLIGHT = '#ff4d6d'; 
+const GOLD = '#ffd166';      
+const FUEL_TANK = 20;        
 
 // RANDOM GRASS GENERATOR
 const generateGrassSVG = () => {
-  const size = 64; // Larger tile to reduce obvious repetition
+  const size = 64; 
   const baseColor = '#62b04c';
   const darkColor = '#55a041';
   const lightColor = '#72c05a';
   let rects = '';
   
-  // Randomly place about 80 pixels of varying shades
   for (let i = 0; i < 80; i++) {
     const x = Math.floor(Math.random() * size);
     const y = Math.floor(Math.random() * size);
@@ -87,12 +83,13 @@ const styles = `
 .px-btn:hover:not(:disabled) { background: #ff6a50; }
 .px-btn:active:not(:disabled) { transform: translate(4px, 4px); box-shadow: 0 0 0 ${INK}; }
 .px-btn:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
-.px-btn:disabled { cursor: not-allowed; }
+.px-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 .px-btn.green { background: #3fa34d; }
-.px-btn.grey { background: #8d8d99; opacity: 0.6; }
+.px-btn.green:hover:not(:disabled) { background: #4fb85e; }
+.px-btn.grey { background: #8d8d99; }
+.px-btn.grey:hover:not(:disabled) { background: #a2a2ae; }
 .px-btn.blue { background: #3d7fe8; }
 .px-btn.blue:hover:not(:disabled) { background: #5a95f2; }
-.px-btn.blue:disabled:not(.grey):not(.green) { opacity: 0.6; }
 
 .road-badge {
   font-family: 'Press Start 2P', monospace;
@@ -105,13 +102,12 @@ const styles = `
   white-space: nowrap;
   pointer-events: none;
 }
-.road-badge.on-path { background: ${GOLD}; }
 
 .road-flow { animation: roadflow 0.6s linear infinite; }
-@keyframes roadflow { to { stroke-dashoffset: -18; } }
-
+.road-badge.on-path { background: #ffd166; }
 .px-pick { cursor: pointer; }
 .px-pick:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
+@keyframes roadflow { to { stroke-dashoffset: -18; } }
 
 .pz-board .react-flow__node { image-rendering: pixelated; }
 
@@ -119,10 +115,6 @@ const styles = `
   .road-flow { animation: none; }
 }
 `;
-
-/* ------------------------------------------------------------------ */
-/*  Road edge and decorative tree                                      */
-/* ------------------------------------------------------------------ */
 
 function RoadEdge({ sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition, data }) {
   const [path, labelX, labelY] = getSmoothStepPath({
@@ -200,10 +192,6 @@ const nodeTypes = {
 
 const edgeTypes = { road: RoadEdge };
 
-/* ------------------------------------------------------------------ */
-/*  Map data                                                           */
-/* ------------------------------------------------------------------ */
-
 const initialNodes = [
   { id: 'start', type: 'pizza', position: { x: 379.5, y: -100 }, data: { label: "Luigi's Pizza", distance: null } },
   { id: 'j1', type: 'junction', position: { x: 400, y: 162.5 }, data: { label: 'Junction 1', distance: null } },
@@ -265,123 +253,11 @@ const initialEdges = [
   road('e-j6-h8', 'j6', 'top', 'h8', 'bottom', 2),
 ];
 
-const TOTAL_QUESTIONS = initialNodes.length;
-const labelById = Object.fromEntries(initialNodes.map((n) => [n.id, n.data.label]));
-
-/* ------------------------------------------------------------------ */
-/*  Helpers                                                            */
-/* ------------------------------------------------------------------ */
-
-const shuffle = (list) => {
-  const a = [...list];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-};
-
-const formatTime = (secs) =>
-  `${String(Math.floor(secs / 60)).padStart(2, '0')}:${String(secs % 60).padStart(2, '0')}`;
-
-const emptyAlgo = () => ({
-  started: false,
-  finished: false,
-  distances: {},
-  unvisited: [],
-  visited: [],
-  prev: {},
-  stepCount: 0,
-  currentVisitingName: '',
-  currentVisitingId: '',
-});
-
-function buildQuestion(state, edgeList) {
-  const { distances, unvisited, visited, stepCount } = state;
-  const reachable = unvisited.filter((id) => distances[id] < Infinity);
-  if (reachable.length === 0) return null;
-
-  const minDist = Math.min(...reachable.map((id) => distances[id]));
-  const nextId = reachable.find((id) => distances[id] === minDist);
-
-  const improvements = edgeList
-    .filter((e) => e.source === nextId && unvisited.includes(e.target))
-    .map((e) => ({
-      id: e.target,
-      weight: e.data.weight,
-      oldDist: distances[e.target],
-      newDist: distances[nextId] + e.data.weight,
-    }))
-    .filter((u) => u.newDist < u.oldDist);
-
-  if (stepCount % 2 === 1 && improvements.length > 0) {
-    const u = improvements[0];
-    const here = distances[nextId];
-    const oldText = u.oldDist === Infinity ? '∞' : `${u.oldDist} min`;
-    const candidates = [
-      u.newDist,
-      u.weight,
-      u.newDist + 1,
-      u.newDist + 2,
-      Math.max(1, u.newDist - 1),
-      u.oldDist < Infinity ? u.oldDist : u.newDist + 3,
-    ];
-    const unique = [...new Set(candidates)].filter((n) => n > 0);
-    const distractors = shuffle(unique.filter((n) => n !== u.newDist)).slice(0, 3);
-    const options = shuffle([u.newDist, ...distractors]).map((n) => ({
-      id: String(n),
-      label: `${n} min`,
-      correct: n === u.newDist,
-      hint: "Not quite. Add the road's time to the distance you've already travelled to reach the current location.",
-    }));
-
-    return {
-      kind: 'update',
-      stepNodeId: nextId,
-      prompt: `Dijkstra is now at ${labelById[nextId]}, ${here} min from the pizza place. The road to ${labelById[u.id]} takes ${u.weight} min, and its distance is currently ${oldText}. What is the distance to ${labelById[u.id]} after checking this road?`,
-      explanation: `${here} + ${u.weight} = ${u.newDist}, which is shorter than ${u.oldDist === Infinity ? 'infinity' : u.oldDist}, so the distance is updated.`,
-      options,
-    };
-  }
-
-  const others = shuffle(reachable.filter((id) => distances[id] !== minDist));
-  const unreachable = shuffle(unvisited.filter((id) => distances[id] === Infinity));
-  const done = shuffle(visited);
-  const picks = shuffle([nextId, ...[...others, ...unreachable, ...done].slice(0, 3)]);
-
-  const options = picks.map((id) => {
-    const correct = unvisited.includes(id) && distances[id] === minDist;
-    let hint;
-    if (visited.includes(id)) {
-      hint = `${labelById[id]} has already been visited, so its distance is final.`;
-    } else if (distances[id] === Infinity) {
-      hint = `No road to ${labelById[id]} has been found yet, so its distance is still ∞.`;
-    } else {
-      hint = `${labelById[id]} is ${distances[id]} min away, but another unvisited location is closer.`;
-    }
-    return { id, label: labelById[id], correct, hint };
-  });
-
-  return {
-    kind: 'next',
-    stepNodeId: null,
-    prompt:
-      stepCount === 0
-        ? 'Every run starts at the pizza place, where the distance is 0. Which location does Dijkstra visit first?'
-        : 'Which unvisited location should Dijkstra visit next?',
-    explanation:
-      stepCount === 0
-        ? 'We always begin at the pizza place, because it is the only location with a known distance.'
-        : `${labelById[nextId]} has the lowest known distance (${minDist} min) of all the unvisited locations.`,
-    options,
-  };
-}
-
 /* ------------------------------------------------------------------ */
 /*  Component                                                          */
 /* ------------------------------------------------------------------ */
 
-export default function PracticeScene() {
+export default function BoardScene() {
   // AUDIO LOGIC
   const audioRef = useRef(null);
 
@@ -406,54 +282,29 @@ export default function PracticeScene() {
   const [nodes, setNodes, onNodesChange] = useNodesState([...decorNodes, ...initialNodes]);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
-  const [algoState, setAlgoState] = useState(emptyAlgo());
-  const [targetId, setTargetId] = useState('h8');
+  const [quizFeedback, setQuizFeedback] = useState('');
+  const [isQuizCorrect, setIsQuizCorrect] = useState(false);
+  const [showExplanation, setShowExplanation] = useState(false);
+  const [peekMap, setPeekMap] = useState(false); 
 
-  const [question, setQuestion] = useState(null);
-  const [wrongIds, setWrongIds] = useState([]);
-  const [feedback, setFeedback] = useState(null);
-  const [locked, setLocked] = useState(false);
-
-  const [seconds, setSeconds] = useState(0);
-  const [mistakes, setMistakes] = useState(0);
-  const [stats, setStats] = useState({ asked: 0, firstTry: 0 });
-  const [bestTime, setBestTime] = useState(() => {
-    try {
-      const saved = localStorage.getItem(BEST_KEY);
-      return saved === null ? null : Number(saved);
-    } catch {
-      return null;
-    }
+  const [algoState, setAlgoState] = useState({
+    started: false,
+    finished: false,
+    distances: {},
+    unvisited: [],
+    visited: [],
+    currentVisitingName: '',
+    currentVisitingId: '',
+    stepCount: 0,
+    phase: 'idle',
+    explanation: '',
+    quizOptions: [],
+    correctAnswer: null,
+    correctDistance: null,
+    prev: {}, 
   });
-  const [newBest, setNewBest] = useState(false);
 
-  const timeoutRef = useRef(null);
-
-  const timerOn = algoState.started && !algoState.finished && !locked;
-  useEffect(() => {
-    if (!timerOn) return undefined;
-    const id = setInterval(() => setSeconds((s) => s + 1), 1000);
-    return () => clearInterval(id);
-  }, [timerOn]);
-
-  useEffect(() => () => clearTimeout(timeoutRef.current), []);
-
-  const displaySeconds = seconds + mistakes * WRONG_PENALTY;
-
-  useEffect(() => {
-    if (!algoState.finished) return;
-    const total = seconds + mistakes * WRONG_PENALTY;
-    const isBest = bestTime === null || total < bestTime;
-    setNewBest(isBest);
-    if (isBest) {
-      setBestTime(total);
-      try {
-        localStorage.setItem(BEST_KEY, String(total));
-      } catch {
-        /* storage unavailable: ignore */
-      }
-    }
-  }, [algoState.finished]);
+  const [targetId, setTargetId] = useState('h8');
 
   const pathIds = useMemo(() => {
     if (!algoState.visited.includes(targetId)) return [];
@@ -506,6 +357,7 @@ export default function PracticeScene() {
     [edges, pathEdgeIds]
   );
 
+  const labelOf = (id) => nodes.find((n) => n.id === id)?.data.label;
   const legWeights = pathEdges.map((e) => e.data.weight);
   const usedFuel = routeFound ? algoState.distances[targetId] : 0;
   const fuelLeft = Math.max(0, FUEL_TANK - usedFuel);
@@ -515,49 +367,156 @@ export default function PracticeScene() {
   const setRoads = (patch) =>
     setEdges((eds) => eds.map((e) => ({ ...e, data: { ...e.data, ...patch(e) } })));
 
-  const applyStep = (state, chosenId) => {
-    const { distances, unvisited, visited, prev } = state;
-    const newDistances = { ...distances };
-    const newPrev = { ...prev };
+  const runNextStep = (overrideQuiz = false) => {
+    if (algoState.finished) return;
 
-    edges
-      .filter((e) => e.source === chosenId)
-      .forEach((edge) => {
-        const neighborId = edge.target;
-        if (unvisited.includes(neighborId)) {
-          const newDist = newDistances[chosenId] + edge.data.weight;
-          if (newDist < newDistances[neighborId]) {
-            newDistances[neighborId] = newDist;
-            newPrev[neighborId] = chosenId;
-          }
-        }
+    if (!algoState.started) {
+      startSound(); // TRIGGER MUSIC HERE
+
+      const initDistances = {};
+      initialNodes.forEach((n) => {
+        initDistances[n.id] = n.id === 'start' ? 0 : Infinity;
       });
 
-    const newUnvisited = unvisited.filter((id) => id !== chosenId);
-    const newVisited = [...visited, chosenId];
-    const finished = newUnvisited.length === 0 || !newUnvisited.some((id) => newDistances[id] < Infinity);
+      setAlgoState({
+        started: true,
+        finished: false,
+        distances: initDistances,
+        unvisited: initialNodes.map((n) => n.id),
+        visited: [],
+        currentVisitingName: 'Initializing...',
+        currentVisitingId: 'start',
+        stepCount: 0,
+        phase: 'explaining',
+        explanation:
+          "Initialization: We begin at Luigi's Pizza. We set its distance to 0. All other nodes are temporarily set to Infinity (∞) because we haven't discovered routes to them yet.",
+        quizOptions: [],
+        correctAnswer: null,
+        correctDistance: null,
+        prev: {},
+      });
 
-    const next = {
+      setNodes((nds) =>
+        nds.map((n) =>
+          n.type === 'tree' ? n : { ...n, data: { ...n.data, distance: n.id === 'start' ? 0 : '∞' } }
+        )
+      );
+      setRoads(() => ({ showLabel: true, active: false }));
+      return;
+    }
+
+    let { distances, unvisited, visited } = algoState;
+
+    let nextNodeId = null;
+    let minDistance = Infinity;
+    const reachableUnvisited = [];
+
+    unvisited.forEach((id) => {
+      if (distances[id] < Infinity) {
+        reachableUnvisited.push({ id, dist: distances[id] });
+      }
+      if (distances[id] < minDistance) {
+        minDistance = distances[id];
+        nextNodeId = id;
+      }
+    });
+
+    if (!nextNodeId || minDistance === Infinity) {
+      setAlgoState((prev) => ({
+        ...prev,
+        finished: true,
+        currentVisitingName: 'Finished!',
+        phase: 'explaining',
+        explanation:
+          'Algorithm Complete! All reachable destinations have been mapped with their absolute shortest routes from the Pizza Place.',
+      }));
+      setNodes((nds) =>
+        nds.map((n) => (n.type === 'tree' ? n : { ...n, style: { ...n.style, boxShadow: 'none', border: 'none' } }))
+      );
+      setRoads(() => ({ active: false }));
+      return;
+    }
+
+    if ((unvisited.length === 4 || unvisited.length === 5) && !overrideQuiz && reachableUnvisited.length > 1) {
+      setAlgoState((prev) => ({
+        ...prev,
+        phase: 'quiz',
+        quizOptions: reachableUnvisited,
+        correctAnswer: nextNodeId,
+        correctDistance: minDistance,
+      }));
+      setQuizFeedback('');
+      setIsQuizCorrect(false);
+      setPeekMap(false);
+      return;
+    }
+
+    const newDistances = { ...distances };
+    const newPrev = { ...algoState.prev };
+    const connectedEdges = edges.filter((e) => e.source === nextNodeId);
+    const edgeUpdatesLog = [];
+
+    connectedEdges.forEach((edge) => {
+      const neighborId = edge.target;
+      if (unvisited.includes(neighborId)) {
+        const newDist = newDistances[nextNodeId] + edge.data.weight;
+
+        if (newDist < newDistances[neighborId]) {
+          const neighborName = nodes.find((n) => n.id === neighborId).data.label;
+          const oldDistText = newDistances[neighborId] === Infinity ? '∞' : newDistances[neighborId];
+          edgeUpdatesLog.push(`${neighborName} (${oldDistText} ➔ ${newDist})`);
+          newDistances[neighborId] = newDist;
+          newPrev[neighborId] = nextNodeId;
+        }
+      }
+    });
+
+    const newUnvisited = unvisited.filter((id) => id !== nextNodeId);
+    const newVisited = [...visited, nextNodeId];
+    const visitingNodeObj = nodes.find((n) => n.id === nextNodeId);
+
+    const reachableText = reachableUnvisited
+      .map((n) => `${nodes.find((x) => x.id === n.id).data.label} (${n.dist})`)
+      .join(', ');
+    let explanationText = `Step ${algoState.stepCount + 1}\n\n`;
+    explanationText += `• Candidate Nodes: ${reachableText}\n`;
+    explanationText += `• Selection: We lock in ${visitingNodeObj.data.label} because it currently has the absolute lowest known distance (${minDistance}).\n`;
+
+    if (edgeUpdatesLog.length > 0) {
+      explanationText += `• Updates: Scanning roads leaving ${visitingNodeObj.data.label} revealed faster routes to: ${edgeUpdatesLog.join(', ')}.`;
+    } else {
+      explanationText += `• Updates: Scanning roads leaving ${visitingNodeObj.data.label} revealed no faster routes to any remaining unvisited neighbors.`;
+    }
+
+    if (nextNodeId === targetId) {
+      explanationText += `\n• Target reached: the shortest route to ${visitingNodeObj.data.label} is locked in at ${minDistance} min. Follow the gold road on the map.`;
+    }
+
+    setAlgoState({
       started: true,
-      finished,
+      finished: newUnvisited.length === 0,
       distances: newDistances,
       unvisited: newUnvisited,
       visited: newVisited,
+      currentVisitingName: visitingNodeObj.data.label,
+      currentVisitingId: nextNodeId,
+      stepCount: algoState.stepCount + 1,
+      phase: 'explaining',
+      explanation: explanationText,
       prev: newPrev,
-      stepCount: state.stepCount + 1,
-      currentVisitingName: labelById[chosenId],
-      currentVisitingId: chosenId,
-    };
-    setAlgoState(next);
+    });
 
     setNodes((nds) =>
       nds.map((n) => {
         if (n.type === 'tree') return n;
-        const isCurrent = n.id === chosenId && !finished;
-        const dist = newDistances[n.id];
+
+        const isCurrent = n.id === nextNodeId;
+        let displayDist = newDistances[n.id];
+        if (displayDist === Infinity) displayDist = '∞';
+
         return {
           ...n,
-          data: { ...n.data, distance: dist === Infinity ? '∞' : dist },
+          data: { ...n.data, distance: displayDist },
           style: {
             ...n.style,
             border: isCurrent ? `4px solid ${HIGHLIGHT}` : 'none',
@@ -568,70 +527,12 @@ export default function PracticeScene() {
       })
     );
 
-    setRoads((e) => ({ active: !finished && e.source === chosenId && newUnvisited.includes(e.target) }));
-    return next;
+    setRoads((e) => ({ active: e.source === nextNodeId && newUnvisited.includes(e.target) }));
   };
 
-  const startTest = () => {
-    clearTimeout(timeoutRef.current);
-    startSound(); // TRIGGER MUSIC HERE
+  const topNodes = ['start', 'h1', 'h2', 'j1', 'j2'];
+  const explanationPosition = topNodes.includes(algoState.currentVisitingId) ? 'bottom-center' : 'top-center';
 
-    const distances = {};
-    initialNodes.forEach((n) => {
-      distances[n.id] = n.id === 'start' ? 0 : Infinity;
-    });
-    const state = {
-      ...emptyAlgo(),
-      started: true,
-      distances,
-      unvisited: initialNodes.map((n) => n.id),
-    };
-
-    setAlgoState(state);
-    setNodes((nds) =>
-      nds.map((n) =>
-        n.type === 'tree'
-          ? n
-          : { ...n, style: {}, data: { ...n.data, distance: n.id === 'start' ? 0 : '∞' } }
-      )
-    );
-    setRoads(() => ({ showLabel: true, active: false }));
-
-    setSeconds(0);
-    setMistakes(0);
-    setStats({ asked: 0, firstTry: 0 });
-    setNewBest(false);
-    setWrongIds([]);
-    setFeedback(null);
-    setLocked(false);
-    setQuestion(buildQuestion(state, initialEdges));
-  };
-
-  const handleAnswer = (option) => {
-    if (locked || !question) return;
-
-    if (option.correct) {
-      const hadWrong = wrongIds.length > 0;
-      setStats((s) => ({ asked: s.asked + 1, firstTry: s.firstTry + (hadWrong ? 0 : 1) }));
-      setFeedback({ ok: true, text: `Correct! ${question.explanation}` });
-      setLocked(true);
-
-      const nodeToVisit = question.kind === 'update' ? question.stepNodeId : option.id;
-      timeoutRef.current = setTimeout(() => {
-        const next = applyStep(algoState, nodeToVisit);
-        setWrongIds([]);
-        setFeedback(null);
-        setLocked(false);
-        setQuestion(next.finished ? null : buildQuestion(next, edges));
-      }, 2200);
-    } else {
-      setMistakes((m) => m + 1);
-      setWrongIds((w) => [...w, option.id]);
-      setFeedback({ ok: false, text: `${option.hint} (+${WRONG_PENALTY}s)` });
-    }
-  };
-
-  const labelOf = (id) => nodes.find((n) => n.id === id)?.data.label;
   const listNodes = nodes.filter((n) => n.type !== 'tree');
 
   return (
@@ -651,7 +552,6 @@ export default function PracticeScene() {
     >
       <style>{styles}</style>
 
-      {/* LEFT SIGN: customers */}
       <div
         style={{
           ...WOOD,
@@ -716,144 +616,191 @@ export default function PracticeScene() {
         <div style={{ fontSize: '19px', lineHeight: 1.25 }}>
           {algoState.visited.length === 0
             ? 'No stops yet.'
-            : algoState.visited.map((id) => labelById[id]).join(' → ')}
+            : algoState.visited.map((id) => nodes.find((n) => n.id === id)?.data.label).join(' → ')}
         </div>
       </div>
 
-      {/* CENTRE: town map on top, question panel underneath so it never covers the map */}
-      <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
-        <div
-          style={{
-            flex: 1,
-            minHeight: 0,
-            position: 'relative',
-            backgroundColor: '#62b04c',
-            backgroundImage: GRASS,
-            backgroundSize: '128px 128px', // Increased to match 64px tile scale
-            imageRendering: 'pixelated',
-          }}
-        >
-          <ReactFlow
-            nodes={displayNodes}
-            edges={displayEdges}
-            onNodesChange={onNodesChange}
-            onEdgesChange={onEdgesChange}
-            nodeTypes={nodeTypes}
-            edgeTypes={edgeTypes}
-            nodesDraggable={false}
-            panOnDrag={false}
-            zoomOnScroll={false}
-            zoomOnDoubleClick={false}
-            zoomOnPinch={false}
-            fitView
-            fitViewOptions={{ padding: 0.08 }}
-            style={{ background: 'transparent' }}
+      <div
+        style={{
+          flex: 1,
+          minWidth: 0,
+          position: 'relative',
+          backgroundColor: '#62b04c',
+          backgroundImage: GRASS,
+          backgroundSize: '128px 128px', // Increased to match 64px tile scale
+          imageRendering: 'pixelated',
+        }}
+      >
+        {algoState.phase === 'quiz' && peekMap && (
+          <div
+            style={{
+              position: 'absolute',
+              bottom: '16px',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              zIndex: 1000,
+            }}
           >
-            {/* Timer */}
+            <button className="px-btn" onClick={() => setPeekMap(false)}>
+              Back to question
+            </button>
+          </div>
+        )}
+
+        {algoState.phase === 'quiz' && !peekMap && (
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              backgroundColor: 'rgba(30, 20, 10, 0.7)',
+              zIndex: 1000,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '16px',
+            }}
+          >
+            <div style={{ ...pixelCard, ...bodyFont, padding: '24px', maxWidth: '560px', textAlign: 'center' }}>
+              <h2 style={{ ...headingFont, fontSize: '13px', lineHeight: 1.6, margin: '0 0 14px' }}>Quiz time!</h2>
+              <p style={{ fontSize: '22px', lineHeight: 1.2, margin: '0 0 18px' }}>
+                Based on the distances known so far, which unvisited location should Dijkstra's Algorithm visit next?
+              </p>
+
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', justifyContent: 'center', marginBottom: '16px' }}>
+                {algoState.quizOptions.map((opt) => {
+                  const nodeName = nodes.find((n) => n.id === opt.id).data.label;
+                  return (
+                    <button
+                      key={opt.id}
+                      className="px-btn blue"
+                      disabled={isQuizCorrect}
+                      onClick={() => {
+                        if (opt.id === algoState.correctAnswer) {
+                          setQuizFeedback(`Correct! ${nodeName} is the closest unvisited node.`);
+                          setIsQuizCorrect(true);
+                          setTimeout(() => runNextStep(true), 1500);
+                        } else if (opt.dist === algoState.correctDistance) {
+                          setQuizFeedback(
+                            `Correct! ${nodeName} is tied for the lowest distance. We'll arbitrarily run with the other one for this step.`
+                          );
+                          setIsQuizCorrect(true);
+                          setTimeout(() => runNextStep(true), 3000);
+                        } else {
+                          setQuizFeedback(
+                            `Not quite! ${nodeName} has a distance of ${opt.dist}. Dijkstra always picks the node with the lowest number.`
+                          );
+                          setIsQuizCorrect(false);
+                        }
+                      }}
+                    >
+                      {nodeName}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <div style={{ minHeight: '52px', fontSize: '21px', lineHeight: 1.2, color: isQuizCorrect ? '#1f7a2e' : '#b3261e' }}>
+                {quizFeedback}
+              </div>
+
+              <button className="px-btn grey" style={{ marginTop: '12px' }} onClick={() => setPeekMap(true)}>
+                Look at the map
+              </button>
+            </div>
+          </div>
+        )}
+
+        <ReactFlow
+          nodes={displayNodes}
+          edges={displayEdges}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
+          nodeTypes={nodeTypes}
+          edgeTypes={edgeTypes}
+          nodesDraggable={false}
+          panOnDrag={false}
+          zoomOnScroll={false}
+          zoomOnDoubleClick={false}
+          zoomOnPinch={false}
+          fitView
+          fitViewOptions={{ padding: 0.08 }}
+          style={{ background: 'transparent' }}
+        >
+          {algoState.started && (
             <Panel position="top-left">
-              <div style={{ ...pixelCard, ...headingFont, padding: '10px 14px', minWidth: '150px' }}>
-                <div style={{ fontSize: '8px', marginBottom: '6px' }}>Time</div>
-                <div style={{ fontSize: '20px', lineHeight: 1 }}>{formatTime(displaySeconds)}</div>
-                <div style={{ fontSize: '8px', lineHeight: 1.8, marginTop: '8px' }}>
-                  Mistakes: {mistakes}
-                  {mistakes > 0 ? ` (+${mistakes * WRONG_PENALTY}s)` : ''}
-                </div>
-                {bestTime !== null && (
-                  <div style={{ fontSize: '8px', lineHeight: 1.8 }}>Best: {formatTime(bestTime)}</div>
-                )}
+              <div
+                style={{
+                  ...pixelCard,
+                  ...headingFont,
+                  background: algoState.finished ? '#8be28f' : PARCHMENT,
+                  padding: '10px 12px',
+                  fontSize: '10px',
+                  lineHeight: 1.5,
+                }}
+              >
+                {algoState.finished ? 'All routes found!' : `Visiting: ${algoState.currentVisitingName}`}
               </div>
             </Panel>
+          )}
 
-            <Panel position="top-right">
-              <button className={`px-btn${algoState.started ? ' grey' : ''}`} onClick={startTest} style={algoState.started ? { opacity: 1 } : undefined}>
-                {algoState.started ? 'Restart' : 'Start test'}
-              </button>
+          {algoState.phase === 'explaining' && showExplanation && (
+            <Panel
+              position={explanationPosition}
+              style={{
+                marginBottom: explanationPosition === 'bottom-center' ? '20px' : '0',
+                marginTop: explanationPosition === 'top-center' ? '70px' : '0',
+                width: '100%',
+                display: 'flex',
+                justifyContent: 'flex-start',
+                paddingLeft: '20px',
+                pointerEvents: 'none',
+              }}
+            >
+              <div
+                style={{
+                  ...pixelCard,
+                  ...bodyFont,
+                  pointerEvents: 'auto',
+                  background: '#fff3b0',
+                  padding: '14px 20px',
+                  width: '80%',
+                  maxWidth: '600px',
+                  whiteSpace: 'pre-wrap',
+                  fontSize: '20px',
+                  lineHeight: 1.2,
+                }}
+              >
+                <strong style={{ ...headingFont, display: 'block', fontSize: '10px', marginBottom: '10px', fontWeight: 'normal' }}>
+                  Algorithm log
+                </strong>
+                {algoState.explanation}
+              </div>
             </Panel>
-          </ReactFlow>
-        </div>
+          )}
 
-        {/* QUESTION PANEL */}
-        <div
-          style={{
-            ...WOOD,
-            height: DOCK_HEIGHT,
-            flexShrink: 0,
-            borderTop: `4px solid ${INK}`,
-            padding: '14px 18px',
-            boxSizing: 'border-box',
-            zIndex: 10,
-          }}
-        >
-          <div style={{ ...pixelCard, ...bodyFont, height: '100%', boxSizing: 'border-box', padding: '12px 16px', overflowY: 'auto' }}>
-            {!algoState.started && (
-              <>
-                <h3 style={{ ...headingFont, fontSize: '12px', lineHeight: 1.6, margin: '0 0 10px' }}>Ready to test yourself?</h3>
-                <p style={{ fontSize: '22px', lineHeight: 1.15, margin: '0 0 12px', maxWidth: '640px' }}>
-                  You'll be asked a question at every step of Dijkstra's Algorithm. The clock starts when you press
-                  Start test and pauses while each answer is explained. Every wrong answer adds {WRONG_PENALTY} seconds.
-                </p>
-                <button className="px-btn" onClick={startTest}>
-                  Start test
-                </button>
-              </>
-            )}
+          <Panel
+            position="top-right"
+            style={{ display: 'flex', flexDirection: 'column', gap: '12px', alignItems: 'stretch', width: '200px' }}
+          >
+            <button
+              className="px-btn"
+              onClick={() => runNextStep(false)}
+              disabled={algoState.finished || algoState.phase === 'quiz'}
+            >
+              {algoState.started ? 'Next step' : 'Start Dijkstra'}
+            </button>
 
-            {algoState.started && question && (
-              <>
-                <div style={{ ...headingFont, fontSize: '10px', marginBottom: '8px' }}>
-                  Question {algoState.stepCount + 1} of {TOTAL_QUESTIONS}
-                </div>
-                <p style={{ fontSize: '22px', lineHeight: 1.1, margin: '0 0 12px' }}>{question.prompt}</p>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', marginBottom: '10px' }}>
-                  {question.options.map((opt) => {
-                    const wasWrong = wrongIds.includes(opt.id);
-                    const showRight = locked && opt.correct;
-                    return (
-                      <button
-                        key={opt.id}
-                        className={`px-btn ${showRight ? 'green' : wasWrong ? 'grey' : 'blue'}`}
-                        disabled={locked || wasWrong}
-                        onClick={() => handleAnswer(opt)}
-                        style={showRight ? { opacity: 1 } : undefined}
-                      >
-                        {opt.label}
-                      </button>
-                    );
-                  })}
-                </div>
-                <div style={{ minHeight: '24px', fontSize: '20px', lineHeight: 1.1, color: feedback?.ok ? '#1f7a2e' : '#b3261e' }}>
-                  {feedback?.text}
-                </div>
-              </>
-            )}
-
-            {algoState.started && algoState.finished && (
-              <>
-                <h3 style={{ ...headingFont, fontSize: '12px', lineHeight: 1.6, margin: '0 0 10px' }}>Test complete!</h3>
-                <div style={{ fontSize: '22px', lineHeight: 1.2, marginBottom: '12px' }}>
-                  <div>
-                    Final time: <strong>{formatTime(displaySeconds)}</strong>
-                    {newBest ? '  (new best!)' : ''}
-                  </div>
-                  <div>
-                    Correct first time: {stats.firstTry} of {stats.asked}
-                  </div>
-                  <div>
-                    {mistakes === 0
-                      ? 'Perfect run, no mistakes!'
-                      : `${mistakes} wrong answer${mistakes === 1 ? '' : 's'} added ${mistakes * WRONG_PENALTY}s.`}
-                  </div>
-                </div>
-                <button className="px-btn" onClick={startTest}>
-                  Try again
-                </button>
-              </>
-            )}
-          </div>
-        </div>
+            <button
+              className={`px-btn ${showExplanation ? 'green' : 'grey'}`}
+              onClick={() => setShowExplanation(!showExplanation)}
+              disabled={!algoState.started}
+            >
+              Explain: {showExplanation ? 'on' : 'off'}
+            </button>
+          </Panel>
+        </ReactFlow>
       </div>
 
-      {/* RIGHT SIGN: delivery run + all distances */}
       <div
         style={{
           ...WOOD,
@@ -873,7 +820,7 @@ export default function PracticeScene() {
         <div style={{ ...pixelCard, border: `3px solid ${INK}`, boxShadow: `3px 3px 0 ${INK}`, padding: '8px 10px', marginBottom: '22px' }}>
           <div style={{ fontSize: '20px', lineHeight: 1.1 }}>Deliver to: {labelOf(targetId)}</div>
           <div style={{ fontSize: '17px', lineHeight: 1.15, opacity: 0.8, margin: '4px 0 10px' }}>
-            {routeFound ? pathIds.map(labelOf).join(' → ') : 'The route appears once this house has been visited.'}
+            {routeFound ? pathIds.map(labelOf).join(' → ') : 'Run the algorithm to find the shortest route.'}
           </div>
 
           <div style={{ ...headingFont, fontSize: '8px', marginBottom: '6px' }}>Fuel</div>
